@@ -9,7 +9,6 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
@@ -28,7 +27,14 @@ public class EntityRepositoryImp implements EntityRepository {
 	public void create(Document entitty, String collection) {
 		MongoCollection<Document> col = mongoDatabase.getCollection(collection);
 		col.insertOne(entitty);
-
+		if (entitty.containsKey("clientId")) {
+			entitty.remove("clientId");
+		}
+		if (entitty.containsKey("_id")) {
+			String id = entitty.getObjectId("_id").toString();
+			entitty.append("id", id);
+			entitty.remove("_id");
+		}
 	}
 
 	@Override
@@ -38,6 +44,13 @@ public class EntityRepositoryImp implements EntityRepository {
 		query.put("_id", new ObjectId(id));
 		query.put("clientId", clientId);
 		Document dbObj = col.find(query).first();
+		if (dbObj.containsKey("clientId")) {
+			dbObj.remove("clientId");
+		}
+		if (dbObj.containsKey("_id")) {
+			dbObj.append("id", id);
+			dbObj.remove("_id");
+		}
 		return dbObj;
 	}
 
@@ -47,6 +60,16 @@ public class EntityRepositoryImp implements EntityRepository {
 		BasicDBObject query = new BasicDBObject();
 		query.put("clientId", clientId);
 		List<Document> objects = col.find(query).into(new ArrayList<Document>());
+		objects.forEach(object -> {
+			if (object.containsKey("clientId")) {
+				object.remove("clientId");
+			}
+			if (object.containsKey("_id")) {
+				String id = object.getObjectId("_id").toString();
+				object.append("id", id);
+				object.remove("_id");
+			}
+		});
 		return objects;
 	}
 

@@ -31,8 +31,8 @@ public class OAuthJwtIssuerImpl extends OAuthIssuerImpl {
 
 		final JWTSigner signer = new JWTSigner(secret);
 		claims.put("iss", issuer);
-		// claims.put("exp", exp);
-		// claims.put("iat", iat);
+//		claims.put("exp", exp);
+//		claims.put("iat", iat);
 
 		final String jwt = signer.sign(claims);
 

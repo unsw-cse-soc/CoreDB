@@ -44,7 +44,7 @@ public class EntityResource {
 		document.append("createdBy", userInfo.getName());
 		document.append("updatedBy", userInfo.getName());
 		document.append("clientId", userInfo.getClientId());
-		entityRepository.create(document, type);
+		entityRepository.create(document, String.format("%s_%s", userInfo.getClientId(), type));
 		return Response.ok(document).build();
 	}
 
@@ -52,7 +52,8 @@ public class EntityResource {
 	@Path("/get/{type}/{id}")
 	@Secured
 	public Response get(@AppUser UserInfo userInfo, @PathParam("type") String type, @PathParam("id") String id) {
-		Document document = entityRepository.get(id, userInfo.getClientId(), type);
+		Document document = entityRepository.get(id, userInfo.getClientId(),
+				String.format("%s_%s", userInfo.getClientId(), type));
 		return Response.ok(document).build();
 	}
 
@@ -60,7 +61,8 @@ public class EntityResource {
 	@Path("/list/{type}")
 	@Secured
 	public Response getAll(@AppUser UserInfo userInfo, @PathParam("type") String type) {
-		List<Document> documents = entityRepository.getAll(userInfo.getClientId(), type);
+		List<Document> documents = entityRepository.getAll(userInfo.getClientId(),
+				String.format("%s_%s", userInfo.getClientId(), type));
 		return Response.ok(documents).build();
 	}
 }

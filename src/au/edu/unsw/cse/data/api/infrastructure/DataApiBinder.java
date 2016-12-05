@@ -12,10 +12,12 @@ import com.mongodb.client.MongoDatabase;
 
 import au.edu.unsw.cse.data.api.domain.abstracts.ClientRepository;
 import au.edu.unsw.cse.data.api.domain.abstracts.EntityRepository;
+import au.edu.unsw.cse.data.api.domain.abstracts.EntityTypeRepository;
 import au.edu.unsw.cse.data.api.domain.abstracts.TokenRepository;
 import au.edu.unsw.cse.data.api.domain.abstracts.UserRepository;
 import au.edu.unsw.cse.data.api.domain.concrete.ClientRepositoryImp;
 import au.edu.unsw.cse.data.api.domain.concrete.EntityRepositoryImp;
+import au.edu.unsw.cse.data.api.domain.concrete.EntityTypeRepositoryImp;
 import au.edu.unsw.cse.data.api.domain.concrete.TokenRepositoryImp;
 import au.edu.unsw.cse.data.api.domain.concrete.UserRepositoryImp;
 import au.edu.unsw.cse.data.api.security.AppUser;
@@ -30,6 +32,7 @@ public class DataApiBinder extends AbstractBinder {
 		bind(UserInfoFactoryProvider.InjectionResolver.class).to(new TypeLiteral<InjectionResolver<AppUser>>() {
 		}).in(Singleton.class);
 		bind(EntityRepositoryImp.class).to(EntityRepository.class);
+		bind(EntityTypeRepositoryImp.class).to(EntityTypeRepository.class);
 		bind(TokenRepositoryImp.class).to(TokenRepository.class);
 		bind(UserRepositoryImp.class).to(UserRepository.class);
 		bind(ClientRepositoryImp.class).to(ClientRepository.class);
