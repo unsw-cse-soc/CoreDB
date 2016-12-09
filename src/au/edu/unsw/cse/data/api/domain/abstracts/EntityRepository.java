@@ -9,5 +9,7 @@ public interface EntityRepository {
 
 	Document get(String id, String clientId, String collection);
 
+	List<Document> get(String id, List<String> includes, String clientId, String collection);
+
 	List<Document> getAll(String clientId, String collection);
 }

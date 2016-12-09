@@ -1,6 +1,7 @@
 package au.edu.unsw.cse.data.api.resources;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -9,6 +10,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -41,6 +43,7 @@ public class EntityResource {
 		entity.fields().forEachRemaining(key -> {
 			document.append(key.getKey(), key.getValue().asText());
 		});
+		document.append("type", type);
 		document.append("createdBy", userInfo.getName());
 		document.append("updatedBy", userInfo.getName());
 		document.append("clientId", userInfo.getClientId());
@@ -55,6 +58,16 @@ public class EntityResource {
 		Document document = entityRepository.get(id, userInfo.getClientId(),
 				String.format("%s_%s", userInfo.getClientId(), type));
 		return Response.ok(document).build();
+	}
+
+	@GET
+	@Path("/get2/{type}/{id}")
+	@Secured
+	public Response get2(@AppUser UserInfo userInfo, @PathParam("type") String type, @PathParam("id") String id,
+			@QueryParam("include") List<String> includes) {
+		List<Document> documents = entityRepository.get(id, includes, userInfo.getClientId(),
+				String.format("%s_%s", userInfo.getClientId(), type));
+		return Response.ok(documents).build();
 	}
 
 	@GET
