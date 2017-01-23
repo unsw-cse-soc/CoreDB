@@ -1,7 +1,6 @@
 package au.edu.unsw.cse.data.api.resources;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;

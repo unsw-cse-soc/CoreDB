@@ -3,9 +3,12 @@ package au.edu.unsw.cse.data.api.domain.concrete;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -86,34 +89,29 @@ public class EntityRepositoryImp implements EntityRepository {
 	@Override
 	public List<Document> get(String id, List<String> includes, String clientId, String collection) {
 		List<EntityRelation> relations = relationRepository.get(id, includes);
-		Map<String, List<ObjectId>> requiredEntities = new HashMap<String, List<ObjectId>>();
+		ConcurrentHashMap<String, Set<ObjectId>> requiredEntities = new ConcurrentHashMap<String, Set<ObjectId>>();
 		relations.forEach(relation -> {
 			for (int i = 0; i < relation.getPath().length; i++) {
 				String itemType = relation.getTypes()[i + 1];
 				String entityId = relation.getPath()[i];
-				if (!requiredEntities.containsKey(itemType)) {
-					requiredEntities.put(itemType, new ArrayList<ObjectId>() {
-						{
-							add(new ObjectId(entityId));
-						}
-					});
-				} else {
-					if (!requiredEntities.get(itemType).stream().filter(p -> p.toString().equalsIgnoreCase(entityId))
-							.findAny().isPresent()) {
-						requiredEntities.get(itemType).add(new ObjectId(entityId));
+				if (requiredEntities.putIfAbsent(itemType, new HashSet<ObjectId>() {
+					{
+						add(new ObjectId(entityId));
 					}
+				}) == null) {
+					requiredEntities.get(itemType).add(new ObjectId(entityId));
 				}
 			}
 		});
 		// add source
-		requiredEntities.put(relations.get(0).getTypes()[0], new ArrayList<ObjectId>() {
+		requiredEntities.put(relations.get(0).getTypes()[0], new HashSet<ObjectId>() {
 			{
 				add(new ObjectId(id));
 			}
 		});
 		List<Document> entities = new LinkedList<Document>();
 		// get all entities
-		requiredEntities.forEach((key, value) -> {
+		requiredEntities.forEach(10, (key, value) -> {
 			MongoCollection<Document> col = mongoDatabase.getCollection(String.format("%s_%s", clientId, key));
 			BasicDBObject inQuery = new BasicDBObject("$in", value.toArray());
 			BasicDBObject query = new BasicDBObject("_id", inQuery);
