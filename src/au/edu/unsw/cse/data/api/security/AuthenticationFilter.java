@@ -32,53 +32,55 @@ import javax.ws.rs.core.SecurityContext;
 @Priority(Priorities.AUTHENTICATION)
 public class AuthenticationFilter implements ContainerRequestFilter {
 
-	@Context
-	private HttpServletRequest request;
+  @Context
+  private HttpServletRequest request;
 
-	private Map<String, Object> claims;
+  private Map<String, Object> claims;
 
-	private boolean secure;
+  private boolean secure;
 
-	@Override
-	public void filter(ContainerRequestContext requestContext) throws IOException {
-		try {
-			OAuthAccessResourceRequest oauthRequest = new OAuthAccessResourceRequest(request, ParameterStyle.HEADER);
-			// Get the access token
-			String accessToken = oauthRequest.getAccessToken();
-			final String secret = "bg)0nn^rh!q0f8)4ku17iz-)dagzm$qjfts$@64cu4#jhb!sx-";
-			final JWTVerifier verifier = new JWTVerifier(secret);
-			claims = verifier.verify(accessToken);
-			secure = true;
-		} catch (OAuthSystemException | OAuthProblemException | InvalidKeyException | NoSuchAlgorithmException
-				| IllegalStateException | SignatureException | JWTVerifyException e) {
-			secure = false;
-			requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
-		}
+  @Override
+  public void filter(ContainerRequestContext requestContext) throws IOException {
+    try {
+      OAuthAccessResourceRequest oauthRequest = new OAuthAccessResourceRequest(request,
+          ParameterStyle.HEADER);
+      // Get the access token
+      String accessToken = oauthRequest.getAccessToken();
+      final String secret = "bg)0nn^rh!q0f8)4ku17iz-)dagzm$qjfts$@64cu4#jhb!sx-";
+      final JWTVerifier verifier = new JWTVerifier(secret);
+      claims = verifier.verify(accessToken);
+      secure = true;
+    } catch (OAuthSystemException | OAuthProblemException | InvalidKeyException | NoSuchAlgorithmException
+        | IllegalStateException | SignatureException | JWTVerifyException e) {
+      secure = false;
+      requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+    }
 
-		requestContext.setSecurityContext(new SecurityContext() {
+    requestContext.setSecurityContext(new SecurityContext() {
 
-			@Override
-			public boolean isUserInRole(String role) {
-				return claims.containsKey(Claims.ROLE)
-						&& StringUtils.equalsIgnoreCase(claims.get(Claims.ROLE).toString(), role);
-			}
+      @Override
+      public boolean isUserInRole(String role) {
+        return claims.containsKey(Claims.ROLE)
+            && StringUtils.equalsIgnoreCase(claims.get(Claims.ROLE).toString(), role);
+      }
 
-			@Override
-			public boolean isSecure() {
-				return secure;
-			}
+      @Override
+      public boolean isSecure() {
+        return secure;
+      }
 
-			@Override
-			public Principal getUserPrincipal() {
-				return new UserInfo(claims.get(Claims.USERNAME).toString(), claims.get(Claims.CLIENTID).toString());
-			}
+      @Override
+      public Principal getUserPrincipal() {
+        return new UserInfo(claims.get(Claims.USERNAME).toString(),
+            claims.get(Claims.CLIENTID).toString());
+      }
 
-			@Override
-			public String getAuthenticationScheme() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		});
-	}
+      @Override
+      public String getAuthenticationScheme() {
+        // TODO Auto-generated method stub
+        return null;
+      }
+    });
+  }
 
 }

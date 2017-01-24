@@ -10,25 +10,25 @@ import au.edu.unsw.cse.data.api.domain.entity.Client;
 
 public class ClientRepositoryImp extends RepositoryImp<Client> implements ClientRepository {
 
-	@Inject
-	public ClientRepositoryImp(Datastore datastore) {
-		super(datastore, Client.class);
-	}
+  @Inject
+  public ClientRepositoryImp(Datastore datastore) {
+    super(datastore, Client.class);
+  }
 
-	@Override
-	public Client get(String name, String secret) {
-		final Query<Client> query = datastore.createQuery(Client.class);
-		query.and(query.criteria("name").equal(name), query.criteria("secret").equal(secret));
-		Client client = query.get();
-		return client;
-	}
+  @Override
+  public Client get(String name, String secret) {
+    final Query<Client> query = datastore.createQuery(Client.class);
+    query.and(query.criteria("name").equal(name), query.criteria("secret").equal(secret));
+    Client client = query.get();
+    return client;
+  }
 
-	@Override
-	public Client getByName(String name) {
-		final Query<Client> query = datastore.createQuery(Client.class);
-		query.and(query.criteria("name").equalIgnoreCase(name));
-		Client client = query.get();
-		return client;
-	}
+  @Override
+  public Client getByName(String name) {
+    final Query<Client> query = datastore.createQuery(Client.class);
+    query.and(query.criteria("name").equalIgnoreCase(name));
+    Client client = query.get();
+    return client;
+  }
 
 }

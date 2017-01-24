@@ -39,84 +39,92 @@ import au.edu.unsw.cse.data.api.security.OAuthRequestWrapper;
 
 @Path("oauth")
 public class TokenEndpoint {
-	private final ClientRepository clientRepo;
-	private final UserRepository userRepo;
-	private final TokenRepository tokenRepo;
 
-	@Inject
-	public TokenEndpoint(UserRepository userRepo, TokenRepository tokenRepo, ClientRepository clientRepo) {
-		this.userRepo = userRepo;
-		this.tokenRepo = tokenRepo;
-		this.clientRepo = clientRepo;
-	}
+  private final ClientRepository clientRepo;
+  private final UserRepository userRepo;
+  private final TokenRepository tokenRepo;
 
-	@POST
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/token")
-	public Response authorize(@Context HttpServletRequest request, MultivaluedMap<String, String> form)
-			throws OAuthSystemException {
-		try {
-			OAuthTokenRequest oauthRequest = new OAuthTokenRequest(new OAuthRequestWrapper(request, form));
+  @Inject
+  public TokenEndpoint(UserRepository userRepo, TokenRepository tokenRepo,
+      ClientRepository clientRepo) {
+    this.userRepo = userRepo;
+    this.tokenRepo = tokenRepo;
+    this.clientRepo = clientRepo;
+  }
 
-			Client client = clientRepo.get(oauthRequest.getClientId(), oauthRequest.getClientSecret());
+  @POST
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/token")
+  public Response authorize(@Context HttpServletRequest request,
+      MultivaluedMap<String, String> form)
+      throws OAuthSystemException {
+    try {
+      OAuthTokenRequest oauthRequest = new OAuthTokenRequest(
+          new OAuthRequestWrapper(request, form));
 
-			if (client == null) {
-				return buildInvalidClientIdResponse();
-			}
+      Client client = clientRepo.get(oauthRequest.getClientId(), oauthRequest.getClientSecret());
 
-			User user = null;
-			// do checking for different grant types
-			if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.PASSWORD.toString())) {
-				user = userRepo.get(oauthRequest.getUsername(), DigestUtils.sha1Hex(oauthRequest.getPassword()));
-				if (user == null) {
-					return buildInvalidUserPassResponse();
-				}
-			} else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.REFRESH_TOKEN.toString())) {
-				// refresh token is not supported in this implementation
-				buildInvalidUserPassResponse();
-			}
+      if (client == null) {
+        return buildInvalidClientIdResponse();
+      }
 
-			OAuthIssuer oauthIssuerImpl = new OAuthJwtIssuerImpl(new MD5Generator());
-			((OAuthJwtIssuerImpl) oauthIssuerImpl).setClaims(user);
-			((OAuthJwtIssuerImpl) oauthIssuerImpl).setClaim(Claims.CLIENTID, client.getId());
+      User user = null;
+      // do checking for different grant types
+      if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.PASSWORD.toString())) {
+        user = userRepo
+            .get(oauthRequest.getUsername(), DigestUtils.sha1Hex(oauthRequest.getPassword()));
+        if (user == null) {
+          return buildInvalidUserPassResponse();
+        }
+      } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE)
+          .equals(GrantType.REFRESH_TOKEN.toString())) {
+        // refresh token is not supported in this implementation
+        buildInvalidUserPassResponse();
+      }
 
-			final String accessToken = oauthIssuerImpl.accessToken();
-			final String refreshToken = oauthIssuerImpl.refreshToken();
+      OAuthIssuer oauthIssuerImpl = new OAuthJwtIssuerImpl(new MD5Generator());
+      ((OAuthJwtIssuerImpl) oauthIssuerImpl).setClaims(user);
+      ((OAuthJwtIssuerImpl) oauthIssuerImpl).setClaim(Claims.CLIENTID, client.getId());
 
-			Date now = new Date();
-			RefreshToken rToken = new RefreshToken();
-			rToken.setToken(refreshToken);
-			rToken.setClient(client);
-			rToken.setIssuedOn(now);
-			rToken.setExpires(DateUtils.addMonths(now, client.getRefreshTokenLifeTime()));
-			rToken.setProtectedTicket(accessToken);
-			rToken.setSubject(user.getUserName());
-			tokenRepo.create(rToken);
+      final String accessToken = oauthIssuerImpl.accessToken();
+      final String refreshToken = oauthIssuerImpl.refreshToken();
 
-			OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK)
-					.setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn("3600")
-					.setParam("username", user.getUserName()).setParam("name", user.getFirstName()).buildJSONMessage();
-			return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+      Date now = new Date();
+      RefreshToken rToken = new RefreshToken();
+      rToken.setToken(refreshToken);
+      rToken.setClient(client);
+      rToken.setIssuedOn(now);
+      rToken.setExpires(DateUtils.addMonths(now, client.getRefreshTokenLifeTime()));
+      rToken.setProtectedTicket(accessToken);
+      rToken.setSubject(user.getUserName());
+      tokenRepo.create(rToken);
 
-		} catch (OAuthProblemException e) {
-			OAuthResponse res = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e)
-					.buildJSONMessage();
-			return Response.status(res.getResponseStatus()).entity(res.getBody()).build();
-		}
-	}
+      OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK)
+          .setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn("3600")
+          .setParam("username", user.getUserName()).setParam("name", user.getFirstName())
+          .buildJSONMessage();
+      return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
 
-	private Response buildInvalidClientIdResponse() throws OAuthSystemException {
-		OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-				.setError(OAuthError.TokenResponse.INVALID_CLIENT)
-				.setErrorDescription("Client is not registered in the system.").buildJSONMessage();
-		return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-	}
+    } catch (OAuthProblemException e) {
+      OAuthResponse res = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e)
+          .buildJSONMessage();
+      return Response.status(res.getResponseStatus()).entity(res.getBody()).build();
+    }
+  }
 
-	private Response buildInvalidUserPassResponse() throws OAuthSystemException {
-		OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-				.setError(OAuthError.TokenResponse.INVALID_GRANT).setErrorDescription("invalid username or password")
-				.buildJSONMessage();
-		return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-	}
+  private Response buildInvalidClientIdResponse() throws OAuthSystemException {
+    OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+        .setError(OAuthError.TokenResponse.INVALID_CLIENT)
+        .setErrorDescription("Client is not registered in the system.").buildJSONMessage();
+    return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+  }
+
+  private Response buildInvalidUserPassResponse() throws OAuthSystemException {
+    OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+        .setError(OAuthError.TokenResponse.INVALID_GRANT)
+        .setErrorDescription("invalid username or password")
+        .buildJSONMessage();
+    return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+  }
 }

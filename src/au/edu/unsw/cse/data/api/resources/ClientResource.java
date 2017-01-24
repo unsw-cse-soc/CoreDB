@@ -22,29 +22,30 @@ import au.edu.unsw.cse.data.api.model.CreateClientBindingModel;
 @Produces(MediaType.APPLICATION_JSON)
 public class ClientResource {
 
-	private final ClientRepository clientRepository;
+  private final ClientRepository clientRepository;
 
-	@Inject
-	public ClientResource(ClientRepository clientRepository) {
-		this.clientRepository = clientRepository;
-	}
+  @Inject
+  public ClientResource(ClientRepository clientRepository) {
+    this.clientRepository = clientRepository;
+  }
 
-	@POST
-	@Path("/client")
-	public Response create(CreateClientBindingModel model) throws NoSuchAlgorithmException {
-		if (clientRepository.getByName(model.getName()) != null) {
-			return Response.status(Response.Status.BAD_REQUEST).entity("select another client name.").build();
-		} else {
-			Client newClient = new Client();
-			newClient.setName(model.getName());
-			newClient.setRefreshTokenLifeTime(36000);
-			// create new key
-			SecretKey secretKey = KeyGenerator.getInstance("AES").generateKey();
-			// get base64 encoded version of the key
-			String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-			newClient.setSecret(encodedKey);
-			clientRepository.create(newClient);
-			return Response.ok(newClient).build();
-		}
-	}
+  @POST
+  @Path("/client")
+  public Response create(CreateClientBindingModel model) throws NoSuchAlgorithmException {
+    if (clientRepository.getByName(model.getName()) != null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("select another client name.")
+          .build();
+    } else {
+      Client newClient = new Client();
+      newClient.setName(model.getName());
+      newClient.setRefreshTokenLifeTime(36000);
+      // create new key
+      SecretKey secretKey = KeyGenerator.getInstance("AES").generateKey();
+      // get base64 encoded version of the key
+      String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+      newClient.setSecret(encodedKey);
+      clientRepository.create(newClient);
+      return Response.ok(newClient).build();
+    }
+  }
 }
