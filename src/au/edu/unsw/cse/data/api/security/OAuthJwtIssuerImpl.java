@@ -13,37 +13,37 @@ import au.edu.unsw.cse.data.api.domain.entity.User;
 
 public class OAuthJwtIssuerImpl extends OAuthIssuerImpl {
 
-  private final Map<String, Object> claims;
+	private final Map<String, Object> claims;
 
-  public OAuthJwtIssuerImpl(ValueGenerator vg) {
-    super(vg);
-    claims = new HashMap<String, Object>();
-  }
+	public OAuthJwtIssuerImpl(ValueGenerator vg) {
+		super(vg);
+		claims = new HashMap<String, Object>();
+	}
 
-  @Override
-  public String accessToken() throws OAuthSystemException {
-    final String issuer = "data.api";
-    final String secret = "bg)0nn^rh!q0f8)4ku17iz-)dagzm$qjfts$@64cu4#jhb!sx-";
+	@Override
+	public String accessToken() throws OAuthSystemException {
+		final String issuer = "data.api";
+		final String secret = "bg)0nn^rh!q0f8)4ku17iz-)dagzm$qjfts$@64cu4#jhb!sx-";
 
-    final long iat = System.currentTimeMillis() / 1000l; // issued at claim
-    final long exp = iat + 60L; // expires claim. In this case the token
-    // expires in 60 seconds
+		final long iat = System.currentTimeMillis() / 1000l; // issued at claim
+		final long exp = iat + 60L; // expires claim. In this case the token
+									// expires in 60 seconds
 
-    final JWTSigner signer = new JWTSigner(secret);
-    claims.put("iss", issuer);
+		final JWTSigner signer = new JWTSigner(secret);
+		claims.put("iss", issuer);
 //		claims.put("exp", exp);
 //		claims.put("iat", iat);
 
-    final String jwt = signer.sign(claims);
+		final String jwt = signer.sign(claims);
 
-    return jwt;
-  }
+		return jwt;
+	}
 
-  public void setClaims(User user) {
-    claims.put(Claims.USERNAME, user.getUserName());
-  }
+	public void setClaims(User user) {
+		claims.put(Claims.USERNAME, user.getUserName());
+	}
 
-  public void setClaim(String claim, String value) {
-    claims.put(claim, value);
-  }
+	public void setClaim(String claim, String value) {
+		claims.put(claim, value);
+	}
 }

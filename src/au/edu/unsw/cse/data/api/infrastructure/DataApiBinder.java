@@ -24,18 +24,17 @@ import au.edu.unsw.cse.data.api.security.AppUser;
 
 public class DataApiBinder extends AbstractBinder {
 
-  @Override
-  protected void configure() {
-    bindFactory(MongoFactory.class).to(MongoDatabase.class).in(Singleton.class);
-    bindFactory(DatastoreFactory.class).to(Datastore.class).in(Singleton.class);
-    bind(UserInfoFactoryProvider.class).to(ValueFactoryProvider.class).in(Singleton.class);
-    bind(UserInfoFactoryProvider.InjectionResolver.class)
-        .to(new TypeLiteral<InjectionResolver<AppUser>>() {
-        }).in(Singleton.class);
-    bind(EntityRepositoryImp.class).to(EntityRepository.class);
-    bind(EntityTypeRepositoryImp.class).to(EntityTypeRepository.class);
-    bind(TokenRepositoryImp.class).to(TokenRepository.class);
-    bind(UserRepositoryImp.class).to(UserRepository.class);
-    bind(ClientRepositoryImp.class).to(ClientRepository.class);
-  }
+	@Override
+	protected void configure() {
+		bindFactory(MongoFactory.class).to(MongoDatabase.class).in(Singleton.class);
+		bindFactory(DatastoreFactory.class).to(Datastore.class).in(Singleton.class);
+		bind(UserInfoFactoryProvider.class).to(ValueFactoryProvider.class).in(Singleton.class);
+		bind(UserInfoFactoryProvider.InjectionResolver.class).to(new TypeLiteral<InjectionResolver<AppUser>>() {
+		}).in(Singleton.class);
+		bind(EntityRepositoryImp.class).to(EntityRepository.class);
+		bind(EntityTypeRepositoryImp.class).to(EntityTypeRepository.class);
+		bind(TokenRepositoryImp.class).to(TokenRepository.class);
+		bind(UserRepositoryImp.class).to(UserRepository.class);
+		bind(ClientRepositoryImp.class).to(ClientRepository.class);
+	}
 }

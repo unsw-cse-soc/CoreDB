@@ -18,33 +18,30 @@ import au.edu.unsw.cse.data.api.security.UserInfo;
 
 public class UserInfoFactoryProvider extends AbstractValueFactoryProvider {
 
-  @Inject
-  public UserInfoFactoryProvider(MultivaluedParameterExtractorProvider mpep,
-      ServiceLocator locator) {
-    super(mpep, locator, Parameter.Source.UNKNOWN);
-  }
+	@Inject
+	public UserInfoFactoryProvider(MultivaluedParameterExtractorProvider mpep, ServiceLocator locator) {
+		super(mpep, locator, Parameter.Source.UNKNOWN);
+	}
 
-  @Singleton
-  public static final class InjectionResolver extends ParamInjectionResolver<AppUser> {
+	@Singleton
+	public static final class InjectionResolver extends ParamInjectionResolver<AppUser> {
+		public InjectionResolver() {
+			super(UserInfoFactoryProvider.class);
+		}
+	}
 
-    public InjectionResolver() {
-      super(UserInfoFactoryProvider.class);
-    }
-  }
+	private static final class UserInfoFactory extends AbstractContainerRequestValueFactory<UserInfo> {
 
-  private static final class UserInfoFactory extends
-      AbstractContainerRequestValueFactory<UserInfo> {
+		@Override
+		public UserInfo provide() {
+			final Principal principal = getContainerRequest().getSecurityContext().getUserPrincipal();
+			return (UserInfo) principal;
+		}
+	}
 
-    @Override
-    public UserInfo provide() {
-      final Principal principal = getContainerRequest().getSecurityContext().getUserPrincipal();
-      return (UserInfo) principal;
-    }
-  }
-
-  @Override
-  protected Factory<?> createValueFactory(Parameter arg0) {
-    return new UserInfoFactory();
-  }
+	@Override
+	protected Factory<?> createValueFactory(Parameter arg0) {
+		return new UserInfoFactory();
+	}
 
 }

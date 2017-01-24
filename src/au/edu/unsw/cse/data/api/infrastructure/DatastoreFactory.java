@@ -11,34 +11,33 @@ import org.mongodb.morphia.Morphia;
 import com.mongodb.MongoClient;
 
 public class DatastoreFactory implements Factory<Datastore> {
+	private Datastore datastore;
 
-  private Datastore datastore;
+	public DatastoreFactory() {
+		final Morphia morphia = new Morphia();
+		morphia.mapPackage("au.edu.unsw.cse.domain.entity");
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		InputStream input = classLoader.getResourceAsStream("mongo.properties");
+		Properties properties = new Properties();
+		try {
+			properties.load(input);
+			datastore = morphia.createDatastore(new MongoClient(properties.getProperty("mongohost"),
+					Integer.parseInt(properties.getProperty("mongoport"))), properties.getProperty("db"));
 
-  public DatastoreFactory() {
-    final Morphia morphia = new Morphia();
-    morphia.mapPackage("au.edu.unsw.cse.domain.entity");
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-    InputStream input = classLoader.getResourceAsStream("mongo.properties");
-    Properties properties = new Properties();
-    try {
-      properties.load(input);
-      datastore = morphia.createDatastore(new MongoClient(properties.getProperty("mongohost"),
-          Integer.parseInt(properties.getProperty("mongoport"))), properties.getProperty("db"));
+			datastore.ensureIndexes();
+		} catch (IOException e) {
+		}
 
-      datastore.ensureIndexes();
-    } catch (IOException e) {
-    }
+	}
 
-  }
+	@Override
+	public void dispose(Datastore datastore) {
+		datastore.getMongo().close();
 
-  @Override
-  public void dispose(Datastore datastore) {
-    datastore.getMongo().close();
+	}
 
-  }
-
-  @Override
-  public Datastore provide() {
-    return datastore;
-  }
+	@Override
+	public Datastore provide() {
+		return datastore;
+	}
 }

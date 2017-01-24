@@ -13,34 +13,33 @@ import au.edu.unsw.cse.data.api.domain.watcher.EntityWatcher;
 
 @EntityListeners(EntityWatcher.class)
 public abstract class Entity {
+	@Id
+	protected ObjectId id;
 
-  @Id
-  protected ObjectId id;
+	@JsonProperty(access = Access.READ_ONLY)
+	protected Date createdAt;
 
-  @JsonProperty(access = Access.READ_ONLY)
-  protected Date createdAt;
+	@JsonProperty(access = Access.READ_ONLY)
+	protected Date updatedAt;
 
-  @JsonProperty(access = Access.READ_ONLY)
-  protected Date updatedAt;
+	@JsonProperty("id")
+	public String getId() {
+		return id.toString();
+	}
 
-  @JsonProperty("id")
-  public String getId() {
-    return id.toString();
-  }
+	public Date getUpdatedAt() {
+		return updatedAt;
+	}
 
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
+	public void setUpdatedAt(Date updatedAt) {
+		this.updatedAt = updatedAt;
+	}
 
-  public void setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
-  }
+	public Date getCreatedAt() {
+		return createdAt;
+	}
 
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-  }
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
 }
