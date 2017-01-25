@@ -27,10 +27,10 @@ public class RelationResource {
 	}
 
 	@POST
-	@Path("/create/{sourcetype}/{destinationtype}")
+	@Path("/create/{sourceType}/{destinationType}")
 	@Secured
-	public Response create(@PathParam("sourcetype") String sourceType,
-			@PathParam("destinationtype") String destinationType, CreateRelationBindingModel model) {
+	public Response create(@PathParam("sourceType") String sourceType,
+			@PathParam("destinationType") String destinationType, CreateRelationBindingModel model) {
 		EntityRelation newRelation = new EntityRelation();
 		newRelation.setPath(new String[] { model.getDestination() });
 		newRelation.setSource(model.getSource());

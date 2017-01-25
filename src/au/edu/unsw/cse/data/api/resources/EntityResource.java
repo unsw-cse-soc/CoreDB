@@ -50,19 +50,11 @@ public class EntityResource {
 		return Response.ok(document).build();
 	}
 
+
 	@GET
 	@Path("/get/{type}/{id}")
 	@Secured
-	public Response get(@AppUser UserInfo userInfo, @PathParam("type") String type, @PathParam("id") String id) {
-		Document document = entityRepository.get(id, userInfo.getClientId(),
-				String.format("%s_%s", userInfo.getClientId(), type));
-		return Response.ok(document).build();
-	}
-
-	@GET
-	@Path("/get2/{type}/{id}")
-	@Secured
-	public Response get2(@AppUser UserInfo userInfo, @PathParam("type") String type, @PathParam("id") String id,
+	public Response get(@AppUser UserInfo userInfo, @PathParam("type") String type, @PathParam("id") String id,
 			@QueryParam("include") List<String> includes) {
 		List<Document> documents = entityRepository.get(id, includes, userInfo.getClientId(),
 				String.format("%s_%s", userInfo.getClientId(), type));
