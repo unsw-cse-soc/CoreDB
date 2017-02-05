@@ -1,5 +1,6 @@
 package au.edu.unsw.cse.data.api.domain.concrete;
 
+import com.mongodb.client.MongoCursor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -65,6 +66,26 @@ public class EntityRepositoryImp implements EntityRepository {
       dbObj.remove("_id");
     }
     return dbObj;
+  }
+
+  @Override
+  public List<Document> filter(String clientId, String collection, Map<String, String> fields) {
+    MongoCollection<Document> col = mongoDatabase.getCollection(collection);
+    BasicDBObject query = new BasicDBObject();
+    List<Document> documents = new LinkedList<Document>();
+    query.put("clientId", clientId);
+    fields.forEach((key, value) -> {
+      query.put(key, value);
+    });
+    MongoCursor<Document> cursor = col.find(query).iterator();
+    try {
+      while (cursor.hasNext()) {
+        documents.add(cursor.next());
+      }
+    } finally {
+      cursor.close();
+    }
+    return documents;
   }
 
   @Override
@@ -168,7 +189,7 @@ public class EntityRepositoryImp implements EntityRepository {
               if (!source.containsKey(destinationType)) {
                 source.append(destinationType, new Document[]{detDoc});
               } else {
-                Document[] docArray = source.get(destinationType , Document[].class);
+                Document[] docArray = source.get(destinationType, Document[].class);
                 source.replace(destinationType, ArrayUtils.add(docArray, detDoc));
               }
             }

@@ -6,6 +6,7 @@ import { Link } from 'react-router';
 import { changeMenu } from '../actions/MenuActions';
 import { getMenus } from '../selectors/MenuSelectors';
 import { getActiveMenu } from '../selectors/MenuSelectors';
+import isNil from 'lodash/isNil';
 
 class MenuContainer extends React.Component {
 
@@ -32,15 +33,36 @@ class MenuContainer extends React.Component {
             </nav>
             <ul class="side-nav fixed">
                 {
-                    menus.valueSeq().map(menu => <li key={menu.id}>
-                        <Link className="waves-effect" to={menu.url} onClick={() => { onMenuChange(menu.id) } }>{menu.title}</Link>
+                    menus.filter(f => f.isRoot === true).valueSeq().map(menu => <li
+                        class={isNil(menu.children) ? `bold${acttiveMenu.id === menu.id ? " active" : ""}` : "no-padding"}
+                        key={menu.id}>
+                        {
+                            !isNil(menu.children)
+                                ? <ul class="collapsible collapsible-accordion">
+                                    <li class={`bold${acttiveMenu.id === menu.id ? " active" : ""}`}>
+                                        <a class="collapsible-header  waves-effect waves-teal">{menu.title}</a>
+                                        <div class="collapsible-body">
+                                            <ul>
+                                                {
+                                                    menu.children.map((c) => {
+                                                        const item = menus.get(c);
+                                                        return <li>
+                                                            <Link className="waves-effect" to={item.url} onClick={() => { onMenuChange(item.id) } }>{item.title}</Link>
+                                                        </li>
+                                                    })
+                                                }
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                                : <Link className="waves-effect" to={menu.url} onClick={() => { onMenuChange(menu.id) } }>{menu.title}</Link>
+                        }
                     </li>)
                 }
             </ul>
         </header>
     }
 }
-
 const mapStateToProps = (state, ownProps) => {
     return {
         menus: getMenus(state),

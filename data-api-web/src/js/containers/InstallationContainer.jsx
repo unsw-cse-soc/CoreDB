@@ -4,8 +4,15 @@ import { createClient } from '../actions/AuthActions';
 
 export default class InstallationContainer extends React.Component {
     render() {
-        return <InstallationComponent onSubmit={(values, dispatch) => {
-            dispatch(createClient(values.client));
-        } } />
+        return <InstallationComponent
+            handleCreateClientSubmit={(values, dispatch) => {
+                dispatch(createClient(values.client));
+            } }
+            handleCreateUserSubmits={(values, dispatch) => {
+                dispatch(createClient(values.client));
+            } }
+            handleLoginSubmit={(values, dispatch) => {
+                dispatch(createClient(values.client));
+            } } />
     }
 }

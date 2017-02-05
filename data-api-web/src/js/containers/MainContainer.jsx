@@ -5,6 +5,8 @@ import { connect } from "react-redux";
 import { getActiveMenu } from '../selectors/MenuSelectors';
 import Title from 'react-title-component';
 import InstallationContainer from '../containers/InstallationContainer';
+import DatabaseContainer from '../containers/DatabaseContainer';
+import EntityContainer from '../containers/EntityContainer';
 
 class MainContainer extends React.Component {
 
@@ -24,6 +26,13 @@ class MainContainer extends React.Component {
         switch (acttiveMenu.id) {
             case "installation":
                 component = <InstallationContainer />
+                break;
+            case "database":
+                component = <DatabaseContainer />
+                break;
+            case "schema":
+            case "store":
+                component = <EntityContainer />
                 break;
         }
         return <div>
