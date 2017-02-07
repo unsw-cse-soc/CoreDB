@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import RenderInput from './ui/RenderInput';
 import RenderSubmitButton from './ui/RenderSubmitButton';
+import RenderDropDown from './ui/RenderDropDown';
 import { reduxForm, Field } from 'redux-form';
 
 class InstallationComponent extends React.Component {
@@ -17,7 +18,7 @@ class InstallationComponent extends React.Component {
     }
 
     render() {
-        const { handleCreateClientSubmit, handleCreateUserSubmit, handleLoginSubmit } = this.props;
+        const { handleCreateClientSubmit, handleCreateUserSubmit, handleLoginSubmit, clients } = this.props;
         return <div class="row">
             <div class="col s12 m12 l12">
                 <div class="card-panel teal lighten-2">Step1: Create your client</div>
@@ -33,7 +34,7 @@ class InstallationComponent extends React.Component {
                     Once you created a client, you will be able to define one or multiple users. It can be a single admin user or multiple users.
                     Later one you can set permission based on the role of a user. Access level can be applied on action and resource level.
                 </p>
-                <CreateUserForm onSubmit={handleCreateUserSubmit} />
+                <CreateUserForm clients={clients} onSubmit={handleCreateUserSubmit} />
             </div>
             <div class="col s12 m12 l12">
                 <div class="card-panel teal lighten-2">Step3: Acquire access token</div>
@@ -55,6 +56,7 @@ class CreateClientForm extends React.Component {
     }
 
     render() {
+        const {handleSubmit, submitting} = this.props;
         return <div class="row">
             <div class="col s12 m12 l12">
                 <div class="card blue-grey darken-1">
@@ -63,7 +65,7 @@ class CreateClientForm extends React.Component {
                     </div>
                 </div>
             </div>
-            <form class="col s12 m12 l12" onSubmit={this.props.onSubmit}>
+            <form class="col s12 m12 l12" onSubmit={handleSubmit}>
                 <Field name="client"
                     id="client-input"
                     label="Name"
@@ -89,6 +91,7 @@ class CreateUserForm extends React.Component {
     }
 
     render() {
+        const {clients} = this.props;
         return <div class="row">
             <div class="col s12 m12 l12">
                 <div class="card blue-grey darken-1">
@@ -98,6 +101,11 @@ class CreateUserForm extends React.Component {
                 </div>
             </div>
             <form class="col s12 m12 l12" onSubmit={this.props.onSubmit}>
+                <Field name="userClientId"
+                    id="user-client-input"
+                    label="Client"
+                    component={RenderDropDown}
+                    options={clients.map((client) => { return { value: client.id, text: client.name } }).toArray()} />
                 <Field name="userName"
                     id="username-input"
                     label="Username"

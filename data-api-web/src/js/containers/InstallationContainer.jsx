@@ -1,18 +1,41 @@
 import React from 'react';
 import InstallationComponent from "../components/InstallationComponent";
-import { createClient } from '../actions/AuthActions';
+import { connect } from "react-redux";
+import { createClient, createUser } from '../actions/AuthActions';
+import { getClients } from '../selectors/AuthSelectors';
 
-export default class InstallationContainer extends React.Component {
+class InstallationContainer extends React.Component {
     render() {
+        const {clients, onCreateClient, onCreateUser} = this.props;
         return <InstallationComponent
-            handleCreateClientSubmit={(values, dispatch) => {
-                dispatch(createClient(values.client));
-            } }
-            handleCreateUserSubmits={(values, dispatch) => {
-                dispatch(createClient(values.client));
-            } }
+            clients={clients}
+            handleCreateClientSubmit={values => {
+                onCreateClient(values.client);
+            }}
+            handleCreateUserSubmits={values => {
+                onCreateUser(values.userName, values.password, values.role, values.clientId);
+            }}
             handleLoginSubmit={(values, dispatch) => {
                 dispatch(createClient(values.client));
-            } } />
+            }} />
     }
 }
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onCreateClient(name) {
+            dispatch(createClient(name));
+        },
+        onCreateUser(userName, password, role, clientId) {
+            dispatch(createUser(userName, password, role, clientId));
+        },
+    };
+};
+
+const mapStateToProps = (state) => {
+    return {
+        clients: getClients(state)
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(InstallationContainer);

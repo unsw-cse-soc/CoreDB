@@ -96,7 +96,7 @@ public class TokenEndpoint {
 
 			OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK)
 					.setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn("3600")
-					.setParam("username", user.getUserName()).setParam("name", user.getFirstName()).buildJSONMessage();
+					.setParam("username", user.getUserName()).buildJSONMessage();
 			return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
 
 		} catch (OAuthProblemException e) {

@@ -13,6 +13,12 @@ class RenderDropDown extends React.Component {
         $(ReactDOM.findDOMNode(this.refs.selectRef)).on('change', this.handleOnChange);
     }
 
+    componentDidUpdate(prevProps) {
+        if (this.props.options !== prevProps.options) {
+            $(ReactDOM.findDOMNode(this.refs.selectRef)).material_select();
+        }
+    }
+
     handleOnChange() {
         let newValue = $(ReactDOM.findDOMNode(this.refs.selectRef)).val()
         this.props.input.onChange(newValue);

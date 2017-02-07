@@ -70,14 +70,14 @@ public class EntityResource {
     } else {
       Document schema = schemas.get(0);
       entity.fields().forEachRemaining(field -> {
-        switch (schema.getString("")) {
-          case value:
+        // switch (schema.getString("")) {
+        //   case value:
             
-            break;
+        //     break;
 
-          default:
-            break;
-        }
+        //   default:
+        //     break;
+        // }
         document.append(field.getKey(), field.getValue().asText());
       });
       document.append("type", type);

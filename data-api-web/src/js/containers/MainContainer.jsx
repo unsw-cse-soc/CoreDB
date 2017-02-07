@@ -4,9 +4,9 @@ import { push } from 'react-router-redux';
 import { connect } from "react-redux";
 import { getActiveMenu } from '../selectors/MenuSelectors';
 import Title from 'react-title-component';
-import InstallationContainer from '../containers/InstallationContainer';
-import DatabaseContainer from '../containers/DatabaseContainer';
-import EntityContainer from '../containers/EntityContainer';
+import InstallationContainer from './InstallationContainer';
+import DatabaseContainer from './DatabaseContainer';
+import EntityContainer from './EntityContainer';
 
 class MainContainer extends React.Component {
 

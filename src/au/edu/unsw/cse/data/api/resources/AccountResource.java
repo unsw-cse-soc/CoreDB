@@ -21,34 +21,32 @@ import org.apache.commons.codec.digest.DigestUtils;
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountResource {
 
-	private final UserRepository userRepo;
-	private final ClientRepository clientRepo;
+  private final UserRepository userRepo;
+  private final ClientRepository clientRepo;
 
-	@Inject
-	public AccountResource(UserRepository userRepo, ClientRepository clientRepo) {
-		this.userRepo = userRepo;
-		this.clientRepo = clientRepo;
-	}
+  @Inject
+  public AccountResource(UserRepository userRepo, ClientRepository clientRepo) {
+    this.userRepo = userRepo;
+    this.clientRepo = clientRepo;
+  }
 
-	@Path("/register")
-	@POST
-	public Response register(CreateUserBindingModel userInfo) {
-		Client client = clientRepo.get(userInfo.getClientId(), userInfo.getClientSecret());
-		if (client == null) {
-			return Response.status(Response.Status.UNAUTHORIZED).type(MediaType.APPLICATION_JSON).build();
-		}
-		if (userRepo.getByUserNameClientId(userInfo.getUserName(), client.getId()) != null) {
-			return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON)
-					.entity("Username's already taken.").build();
-		}
-		User user = new User();
-		user.setClient(client);
-		user.setFirstName(userInfo.getFirstName());
-		user.setLastName(userInfo.getLastName());
-		user.setPassword(DigestUtils.sha1Hex(userInfo.getPassword()));
-		user.setUserName(userInfo.getUserName());
-		userRepo.create(user);
-		return Response.ok(user).build();
-	}
-
+  @Path("/register")
+  @POST
+  public Response register(CreateUserBindingModel userInfo) {
+    Client client = clientRepo.get(userInfo.getClientId());
+    if (client == null) {
+      return Response.status(Response.Status.UNAUTHORIZED).type(MediaType.APPLICATION_JSON).build();
+    }
+    if (userRepo.getByUserNameClientId(userInfo.getUserName(), client.getId()) != null) {
+      return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON)
+          .entity("Username's already taken.").build();
+    }
+    User user = new User();
+    user.setClient(client);
+    user.setPassword(DigestUtils.sha1Hex(userInfo.getPassword()));
+    user.setUserName(userInfo.getUserName());
+    user.setRole(userInfo.getRole());
+    userRepo.create(user);
+    return Response.ok(user).build();
+  }
 }

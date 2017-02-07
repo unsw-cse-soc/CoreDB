@@ -1,10 +1,9 @@
 import { applyMiddleware, createStore } from "redux";
 import logger from "redux-logger";
-// import promise from "redux-promise-middleware";
 import { browserHistory } from 'react-router';
 import { routerMiddleware } from 'react-router-redux';
 import reducer from "./reducers";
-//import rootSagas from "./sagas/index";
+import rootSagas from "./sagas/index";
 import createSagaMiddleware from 'redux-saga';
 
 const sagaMiddleware = createSagaMiddleware();
@@ -13,6 +12,6 @@ const middleware = applyMiddleware(sagaMiddleware, logger(), routerMiddleware(br
 
 const store = createStore(reducer, middleware);
 
-//sagaMiddleware.run(rootSagas);
+sagaMiddleware.run(rootSagas);
 
 export default store;

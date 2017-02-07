@@ -12,30 +12,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity("users")
 @Indexes(@Index(fields = @Field("userName"), options = @IndexOptions(unique = true)))
 public class User extends au.edu.unsw.cse.data.api.domain.entity.Entity {
-	private String firstName;
-	private String lastName;
 	private String userName;
 	@JsonIgnore
 	private String password;
+	private String role;
 	@Reference
 	@JsonIgnore
 	private Client client;
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
 
 	public String getUserName() {
 		return userName;
@@ -51,6 +34,14 @@ public class User extends au.edu.unsw.cse.data.api.domain.entity.Entity {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 	public Client getClient() {

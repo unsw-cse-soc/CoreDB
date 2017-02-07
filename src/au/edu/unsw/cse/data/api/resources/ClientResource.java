@@ -17,7 +17,7 @@ import au.edu.unsw.cse.data.api.domain.abstracts.ClientRepository;
 import au.edu.unsw.cse.data.api.domain.entity.Client;
 import au.edu.unsw.cse.data.api.model.CreateClientBindingModel;
 
-@Path("clients")
+@Path("client")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ClientResource {
@@ -30,7 +30,6 @@ public class ClientResource {
 	}
 
 	@POST
-	@Path("/client")
 	public Response create(CreateClientBindingModel model) throws NoSuchAlgorithmException {
 		if (clientRepository.getByName(model.getName()) != null) {
 			return Response.status(Response.Status.BAD_REQUEST).entity("select another client name.").build();

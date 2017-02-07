@@ -2,11 +2,12 @@ package au.edu.unsw.cse.data.api.domain.entity;
 
 import org.mongodb.morphia.annotations.Entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Entity("clients")
 public class Client extends au.edu.unsw.cse.data.api.domain.entity.Entity {
-	@JsonIgnore
+	@JsonProperty(access = Access.READ_ONLY)
 	private String secret;
 	private String name;
 	private int refreshTokenLifeTime;
