@@ -4,6 +4,7 @@ import RenderInput from './ui/RenderInput';
 import RenderSubmitButton from './ui/RenderSubmitButton';
 import RenderDropDown from './ui/RenderDropDown';
 import { reduxForm, Field } from 'redux-form';
+import isNil from 'lodash/isNil';
 
 class InstallationComponent extends React.Component {
 
@@ -81,6 +82,10 @@ CreateClientForm = reduxForm({
     form: 'newClientForm',
     validate: values => {
         const errors = {};
+        const message = 'This field is mandatory.';
+        if (isNil(values.client)) {
+            errors.client = message;
+        }
         return errors;
     }
 })(CreateClientForm);
@@ -131,6 +136,8 @@ CreateUserForm = reduxForm({
     form: 'newUserForm',
     validate: values => {
         const errors = {};
+        const message = 'This field is mandatory.';
+
         return errors;
     }
 })(CreateUserForm);

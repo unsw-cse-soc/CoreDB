@@ -1,17 +1,18 @@
 import React from 'react';
 
 const RenderInput = ({ input, label, id, type, smallSize, mediumSize, largeSize, withContainer, meta: { touched, error, warning } }) => {
+    const inputClass = (touched && error) ? "validate invalid" : "validate";
     return (
         withContainer === true ?
             <div class="row">
                 <div class={`input-field col ${smallSize} ${mediumSize} ${largeSize}`}>
-                    <input {...input} id={id} name={id} type={type} class="validate" />
-                    <label for={id}>{label}</label>
+                    <input {...input} id={id} name={id} type={type} class={inputClass} required="" aria-required="true"/>
+                    <label for={id} data-error={error}>{label}</label>
                 </div>
             </div> :
             <div class={`input-field col ${smallSize} ${mediumSize} ${largeSize}`}>
-                <input {...input} id={id} name={id} type={type} class="validate" />
-                <label for={id}>{label}</label>
+                <input {...input} id={id} name={id} type={type} class={inputClass} required="" aria-required="true"/>
+                <label for={id} data-error={error}>{label}</label>
             </div>
     );
 }

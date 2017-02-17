@@ -13,8 +13,8 @@ import org.mongodb.morphia.query.Query;
 import au.edu.unsw.cse.data.api.domain.abstracts.RelationRepository;
 import au.edu.unsw.cse.data.api.domain.entity.EntityRelation;
 
-public class RelationRepositoryImp extends RepositoryImp<EntityRelation> implements
-    RelationRepository {
+public class RelationRepositoryImp extends RepositoryImp<EntityRelation>
+    implements RelationRepository {
 
   @Inject
   public RelationRepositoryImp(Datastore datastore) {
@@ -25,15 +25,21 @@ public class RelationRepositoryImp extends RepositoryImp<EntityRelation> impleme
   public void create(EntityRelation entity) {
     List<EntityRelation> paths = this.datastore.find(EntityRelation.class).field("path")
         .endsWithIgnoreCase(entity.getSource()).asList();
-    List<EntityRelation> updatedPaths = new LinkedList<EntityRelation>();
+    List<EntityRelation> updatedPaths = new LinkedList<>();
     paths.forEach(path -> {
       EntityRelation newPath = new EntityRelation();
       newPath.setSource(path.getSource());
-      newPath.setPath(ArrayUtils
-          .add(Arrays.copyOf(path.getPath(), path.getPath().length), entity.getPath()[0]));
-      newPath.setTypes(
-          ArrayUtils
-              .add(Arrays.copyOf(path.getTypes(), path.getTypes().length), entity.getTypes()[1]));
+      newPath.setPath(ArrayUtils.add(Arrays.copyOf(path.getPath(), path.getPath().length),
+          entity.getPath()[0]));
+      newPath.setEntityTypes(
+          ArrayUtils.add(Arrays.copyOf(path.getEntityTypes(), path.getEntityTypes().length),
+              entity.getEntityTypes()[1]));
+      newPath.setRelationNames(
+          ArrayUtils.add(Arrays.copyOf(path.getRelationNames(), path.getRelationNames().length),
+              path.getRelationNames()[0]));
+      newPath.setRelationTypes(
+          ArrayUtils.add(Arrays.copyOf(path.getRelationTypes(), path.getRelationTypes().length),
+              path.getRelationTypes()[0]));
       updatedPaths.add(newPath);
     });
     updatedPaths.add(entity);

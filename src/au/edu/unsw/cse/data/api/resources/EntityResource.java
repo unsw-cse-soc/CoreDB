@@ -1,7 +1,12 @@
 package au.edu.unsw.cse.data.api.resources;
 
+import au.edu.unsw.cse.data.api.domain.abstracts.DatabaseRepository;
+import au.edu.unsw.cse.data.api.domain.entity.Database;
+import au.edu.unsw.cse.data.api.index.abstracts.EntityIndex;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -31,10 +36,15 @@ import au.edu.unsw.cse.data.api.security.UserInfo;
 public class EntityResource {
 
   private final EntityRepository entityRepository;
+  private final DatabaseRepository databaseRepository;
+  private final EntityIndex entityIndex;
 
   @Inject
-  public EntityResource(EntityRepository entityRepository) {
+  public EntityResource(EntityRepository entityRepository, EntityIndex entityIndex,
+      DatabaseRepository databaseRepository) {
     this.entityRepository = entityRepository;
+    this.entityIndex = entityIndex;
+    this.databaseRepository = databaseRepository;
   }
 
   @POST
@@ -55,38 +65,61 @@ public class EntityResource {
   }
 
   @POST
-  @Path("/create/{type}")
+  @Path("/{database}/{type}")
   @Secured
   public Response create(@AppUser UserInfo userInfo, @PathParam("type") String type,
-      ObjectNode entity) {
-    Document document = new Document();
-    List<Document> schemas = entityRepository.filter(userInfo.getClientId(), "schemas",
-        Stream
-            .of(new String[] {"clientId", userInfo.getClientId()},
-                new String[] {"schema_name", type})
-            .collect(Collectors.toMap(s -> s[0], s -> s[1])));
-    if (schemas == null || schemas.isEmpty()) {
-      return Response.status(Status.BAD_REQUEST).build();
-    } else {
-      Document schema = schemas.get(0);
-      entity.fields().forEachRemaining(field -> {
-        // switch (schema.getString("")) {
-        //   case value:
-            
-        //     break;
-
-        //   default:
-        //     break;
-        // }
-        document.append(field.getKey(), field.getValue().asText());
-      });
-      document.append("type", type);
-      document.append("createdBy", userInfo.getName());
-      document.append("updatedBy", userInfo.getName());
-      document.append("clientId", userInfo.getClientId());
-      entityRepository.create(document, String.format("%s_%s", userInfo.getClientId(), type));
-      return Response.ok(document).build();
+      @PathParam("database") String databaseName, ObjectNode entity) {
+    Database database = databaseRepository.get(userInfo.getClientId(), databaseName);
+    if (database == null) {
+      // return error
     }
+    Document document = new Document();
+    ObjectMapper mapper = new ObjectMapper();
+    Map<String, Object> mapObject = mapper.convertValue(entity, Map.class);
+    // create mongo object
+    document.putAll(mapObject);
+    document.append("type", type);
+    document.append("createdBy", userInfo.getName());
+    document.append("updatedBy", userInfo.getName());
+    document.append("clientId", userInfo.getClientId());
+    document.append("databaseId", database.getId());
+    // store mongo object
+    entityRepository.create(document, String.format("%s_%s", userInfo.getClientId(), type));
+    String insertedId = document.getObjectId("_id").toString();
+    entityIndex.createIndex(mapObject, database.getId(), type, insertedId
+
+
+
+    );
+    entity.fields().forEachRemaining(field -> {
+    });
+    return Response.ok(document).build();
+    // List<Document> schemas = entityRepository.filter(userInfo.getClientId(), "schemas",
+    // Stream
+    // .of(new String[] {"clientId", userInfo.getClientId()},
+    // new String[] {"schema_name", type})
+    // .collect(Collectors.toMap(s -> s[0], s -> s[1])));
+    // if (schemas == null || schemas.isEmpty()) {
+    // return Response.status(Status.BAD_REQUEST).build();
+    // } else {
+    // Document schema = schemas.get(0);
+    // entity.fields().forEachRemaining(field -> {
+    // // switch (schema.getString("")) {
+    // // case value:
+    //
+    // // break;
+    //
+    // // default:
+    // // break;
+    // // }
+    // document.append(field.getKey(), field.getValue().asText());
+    // });
+    // document.append("type", type);
+    // document.append("createdBy", userInfo.getName());
+    // document.append("updatedBy", userInfo.getName());
+    // document.append("clientId", userInfo.getClientId());
+    // entityRepository.create(document, String.format("%s_%s", userInfo.getClientId(), type));
+    // return Response.ok(document).build();
   }
 
 
