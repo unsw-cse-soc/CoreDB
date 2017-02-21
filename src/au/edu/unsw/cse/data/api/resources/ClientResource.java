@@ -16,34 +16,39 @@ import javax.ws.rs.core.MediaType;
 import au.edu.unsw.cse.data.api.domain.abstracts.ClientRepository;
 import au.edu.unsw.cse.data.api.domain.entity.Client;
 import au.edu.unsw.cse.data.api.model.CreateClientBindingModel;
+import au.edu.unsw.cse.data.api.model.ViewClientBindingModel;
 
 @Path("client")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ClientResource {
 
-	private final ClientRepository clientRepository;
+  private final ClientRepository clientRepository;
 
-	@Inject
-	public ClientResource(ClientRepository clientRepository) {
-		this.clientRepository = clientRepository;
-	}
+  @Inject
+  public ClientResource(ClientRepository clientRepository) {
+    this.clientRepository = clientRepository;
+  }
 
-	@POST
-	public Response create(CreateClientBindingModel model) throws NoSuchAlgorithmException {
-		if (clientRepository.getByName(model.getName()) != null) {
-			return Response.status(Response.Status.BAD_REQUEST).entity("select another client name.").build();
-		} else {
-			Client newClient = new Client();
-			newClient.setName(model.getName());
-			newClient.setRefreshTokenLifeTime(36000);
-			// create new key
-			SecretKey secretKey = KeyGenerator.getInstance("AES").generateKey();
-			// get base64 encoded version of the key
-			String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-			newClient.setSecret(encodedKey);
-			clientRepository.create(newClient);
-			return Response.ok(newClient).build();
-		}
-	}
+  @POST
+  public Response create(CreateClientBindingModel model) throws NoSuchAlgorithmException {
+    if (clientRepository.getByName(model.getName()) != null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("select another client name.")
+          .build();
+    } else {
+      Client newClient = new Client();
+      newClient.setName(model.getName());
+      newClient.setRefreshTokenLifeTime(36000);
+      // create new key
+      SecretKey secretKey = KeyGenerator.getInstance("AES").generateKey();
+      // get base64 encoded version of the key
+      String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+      newClient.setSecret(encodedKey);
+      clientRepository.create(newClient);
+      ViewClientBindingModel viewModel = new ViewClientBindingModel();
+      viewModel.setName(newClient.getName());
+      viewModel.setSecret(newClient.getSecret());
+      return Response.ok(viewModel).build();
+    }
+  }
 }

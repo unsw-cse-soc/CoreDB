@@ -13,6 +13,7 @@ import au.edu.unsw.cse.data.api.domain.abstracts.UserRepository;
 import au.edu.unsw.cse.data.api.domain.entity.Client;
 import au.edu.unsw.cse.data.api.domain.entity.User;
 import au.edu.unsw.cse.data.api.model.CreateUserBindingModel;
+import au.edu.unsw.cse.data.api.model.ViewUserBindingModel;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -33,7 +34,7 @@ public class AccountResource {
   @Path("/register")
   @POST
   public Response register(CreateUserBindingModel userInfo) {
-    Client client = clientRepo.get(userInfo.getClientId());
+    Client client = clientRepo.get(userInfo.getClientName(), userInfo.getClientSecret());
     if (client == null) {
       return Response.status(Response.Status.UNAUTHORIZED).type(MediaType.APPLICATION_JSON).build();
     }
@@ -47,6 +48,6 @@ public class AccountResource {
     user.setUserName(userInfo.getUserName());
     user.setRole(userInfo.getRole());
     userRepo.create(user);
-    return Response.ok(user).build();
+    return Response.ok(new ViewUserBindingModel(user)).build();
   }
 }

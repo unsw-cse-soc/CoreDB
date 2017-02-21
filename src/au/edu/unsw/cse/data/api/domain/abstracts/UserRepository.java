@@ -2,8 +2,9 @@ package au.edu.unsw.cse.data.api.domain.abstracts;
 
 import au.edu.unsw.cse.data.api.domain.entity.User;
 
-public interface UserRepository extends Repository<User> {
-	User get(String userName, String password);
+public interface UserRepository extends GlobalRepository<User> {
+  User getByUserNamePasword(String userName, String password, String clientName,
+      String clientSecret);
 
-	User getByUserNameClientId(String userName, String clientId);
+  User getByUserNameClientId(String userName, String clientId);
 }

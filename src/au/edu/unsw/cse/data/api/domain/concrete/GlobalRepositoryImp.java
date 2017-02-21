@@ -10,11 +10,17 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.aggregation.AggregationPipeline;
 import org.mongodb.morphia.query.Query;
 
-import au.edu.unsw.cse.data.api.domain.abstracts.Repository;
+import au.edu.unsw.cse.data.api.domain.abstracts.GlobalRepository;
 
-public class RepositoryImp2<T extends au.edu.unsw.cse.data.api.domain.entity.Entity>
-    implements Repository<T> {
+public class GlobalRepositoryImp<T extends au.edu.unsw.cse.data.api.domain.entity.Entity>
+    implements GlobalRepository<T> {
+
   protected final Datastore datastore;
+
+  @Inject
+  public GlobalRepositoryImp(Datastore datastore) {
+    this.datastore = datastore;
+  }
 
   private Class<T> getGenericTypeClass() {
     try {
@@ -27,11 +33,6 @@ public class RepositoryImp2<T extends au.edu.unsw.cse.data.api.domain.entity.Ent
       throw new IllegalStateException(
           "Class is not parametrized with generic type!!! Please use extends <> ");
     }
-  }
-
-  @Inject
-  public RepositoryImp2(Datastore datastore) {
-    this.datastore = datastore;
   }
 
   @Override
@@ -49,6 +50,11 @@ public class RepositoryImp2<T extends au.edu.unsw.cse.data.api.domain.entity.Ent
   }
 
   @Override
+  public Query<T> getQueryable() {
+    return datastore.createQuery(getGenericTypeClass());
+  }
+
+  @Override
   public void create(T entity) {
     datastore.save(entity);
   }
@@ -60,14 +66,11 @@ public class RepositoryImp2<T extends au.edu.unsw.cse.data.api.domain.entity.Ent
   }
 
   @Override
-  public Query<T> getQueryable() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
   public AggregationPipeline getAggregation(Query<T> query) {
     // TODO Auto-generated method stub
     return null;
   }
+
+
+
 }

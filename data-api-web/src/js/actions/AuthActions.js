@@ -23,13 +23,14 @@ export function createClientRejected(error) {
     };
 }
 
-export function createUser(userName, password, role, clientId) {
+export function createUser(userName, password, role, clientName, clientSecret) {
     return {
         type: ActionTypes.CREATE_USER,
         payload: {
             userName: userName,
             password: password,
-            clientId: clientId,
+            clientName: clientName,
+            clientSecret: clientSecret,
             role: role
         }
     }

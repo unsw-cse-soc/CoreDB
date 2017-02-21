@@ -60,7 +60,7 @@ public class EntityResource {
     newSchema.append("createdBy", userInfo.getName());
     newSchema.append("updatedBy", userInfo.getName());
     newSchema.append("clientId", userInfo.getClientId());
-    entityRepository.create(newSchema, "schemas");
+    // entityRepository.create(newSchema, "schemas");
     return Response.ok().build();
   }
 
@@ -69,7 +69,7 @@ public class EntityResource {
   @Secured
   public Response create(@AppUser UserInfo userInfo, @PathParam("type") String type,
       @PathParam("database") String databaseName, ObjectNode entity) {
-    Database database = databaseRepository.get(userInfo.getClientId(), databaseName);
+    Database database = databaseRepository.getByClientId(userInfo.getClientId(), databaseName);
     if (database == null) {
       // return error
     }
@@ -84,13 +84,9 @@ public class EntityResource {
     document.append("clientId", userInfo.getClientId());
     document.append("databaseId", database.getId());
     // store mongo object
-    entityRepository.create(document, String.format("%s_%s", userInfo.getClientId(), type));
+    entityRepository.create(document, databaseName, type);
     String insertedId = document.getObjectId("_id").toString();
-    entityIndex.createIndex(mapObject, database.getId(), type, insertedId
-
-
-
-    );
+    entityIndex.createIndex(mapObject, database.getId(), type, insertedId);
     entity.fields().forEachRemaining(field -> {
     });
     return Response.ok(document).build();
@@ -123,22 +119,22 @@ public class EntityResource {
   }
 
 
-  @GET
-  @Path("/get/{type}/{id}")
-  @Secured
-  public Response get(@AppUser UserInfo userInfo, @PathParam("type") String type,
-      @PathParam("id") String id, @QueryParam("include") List<String> includes) {
-    List<Document> documents = entityRepository.get(id, includes, userInfo.getClientId(),
-        String.format("%s_%s", userInfo.getClientId(), type));
-    return Response.ok(documents).build();
-  }
-
-  @GET
-  @Path("/list/{type}")
-  @Secured
-  public Response getAll(@AppUser UserInfo userInfo, @PathParam("type") String type) {
-    List<Document> documents = entityRepository.getAll(userInfo.getClientId(),
-        String.format("%s_%s", userInfo.getClientId(), type));
-    return Response.ok(documents).build();
-  }
+//  @GET
+//  @Path("/get/{type}/{id}")
+//  @Secured
+//  public Response get(@AppUser UserInfo userInfo, @PathParam("type") String type,
+//      @PathParam("id") String id, @QueryParam("include") List<String> includes) {
+//    List<Document> documents = entityRepository.get(id, includes, userInfo.getClientId(),
+//        String.format("%s_%s", userInfo.getClientId(), type));
+//    return Response.ok(documents).build();
+//  }
+//
+//  @GET
+//  @Path("/list/{type}")
+//  @Secured
+//  public Response getAll(@AppUser UserInfo userInfo, @PathParam("type") String type) {
+//    List<Document> documents = entityRepository.getAll(userInfo.getClientId(),
+//        String.format("%s_%s", userInfo.getClientId(), type));
+//    return Response.ok(documents).build();
+//  }
 }

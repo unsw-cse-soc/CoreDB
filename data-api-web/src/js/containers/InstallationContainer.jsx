@@ -1,19 +1,19 @@
 import React from 'react';
-import InstallationComponent from "../components/InstallationComponent";
-import { connect } from "react-redux";
+import InstallationComponent from '../components/InstallationComponent';
+import { connect } from 'react-redux';
 import { createClient, createUser } from '../actions/AuthActions';
-import { getClients } from '../selectors/AuthSelectors';
+import { getClients, getResponses } from '../selectors/AuthSelectors';
 
 class InstallationContainer extends React.Component {
     render() {
-        const {clients, onCreateClient, onCreateUser} = this.props;
+        const {clients, responses, onCreateClient, onCreateUser} = this.props;
         return <InstallationComponent
-            clients={clients}
+            responses={responses}
             handleCreateClientSubmit={values => {
                 onCreateClient(values.client);
             }}
-            handleCreateUserSubmits={values => {
-                onCreateUser(values.userName, values.password, values.role, values.clientId);
+            handleCreateUserSubmit={values => {
+                onCreateUser(values.userName, values.password, values.role, values.userClientName, values.userClientSecret);
             }}
             handleLoginSubmit={(values, dispatch) => {
                 dispatch(createClient(values.client));
@@ -26,15 +26,15 @@ const mapDispatchToProps = dispatch => {
         onCreateClient(name) {
             dispatch(createClient(name));
         },
-        onCreateUser(userName, password, role, clientId) {
-            dispatch(createUser(userName, password, role, clientId));
+        onCreateUser(userName, password, role, clientName, clientSecret) {
+            dispatch(createUser(userName, password, role, clientName, clientSecret));
         },
     };
 };
 
 const mapStateToProps = (state) => {
     return {
-        clients: getClients(state)
+        responses: getResponses(state)
     };
 }
 

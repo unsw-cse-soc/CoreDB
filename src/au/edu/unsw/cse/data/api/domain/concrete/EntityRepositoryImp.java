@@ -115,7 +115,7 @@ public class EntityRepositoryImp implements EntityRepository {
   @Override
   public List<Document> get(String id, List<String> includes, String clientId, String database,
       String collection) {
-    List<EntityRelation> relations = relationRepository.get(id, includes);
+    List<EntityRelation> relations = relationRepository.get(database, id, includes);
     ConcurrentHashMap<String, Set<ObjectId>> requiredEntities =
         new ConcurrentHashMap<String, Set<ObjectId>>();
     relations.forEach(relation -> {

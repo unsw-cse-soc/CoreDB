@@ -17,13 +17,14 @@ public class EntityTypeRepositoryImp extends RepositoryImp<EntityType>
 
   @Inject
   public EntityTypeRepositoryImp(Morphia morphia, MongoClient mongoClient) {
-    super(morphia, mongoClient, EntityType.class);
+    super(morphia, mongoClient);
   }
 
   @Override
   public EntityType getByName(String name, String clientId) {
-    Query<EntityType> query = getDataStore("dataApi").find(typeParameterClass).disableValidation()
-        .field("client").equal(new Key<>(Client.class, "clients", new ObjectId(clientId)));
+    Query<EntityType> query =
+        getDataStore("dataApi").find(getGenericTypeClass()).disableValidation().field("client")
+            .equal(new Key<>(Client.class, "clients", new ObjectId(clientId)));
     query.and(query.criteria("name").equalIgnoreCase(name));
     EntityType entityType = query.get();
     return entityType;

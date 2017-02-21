@@ -4,6 +4,8 @@ import User from '../models/User';
 import UserMap from '../models/UserMap';
 import Client from '../models/Client';
 import ClientMap from '../models/ClientMap';
+import ResponseMap from '../models/ResponseMap';
+import Response from '../models/Response';
 import * as ActionTypes from '../constants/ActionTypes';
 
 const initState = Immutable.Map({
@@ -17,6 +19,7 @@ const initState = Immutable.Map({
     error: null,
     users: new UserMap(),
     clients: new ClientMap(),
+    responses: new ResponseMap(),
     //represents the logged user
     user: new User({
         id: isNil(sessionStorage.getItem('auth')) ? null : JSON.parse(JSON.parse(sessionStorage.getItem('auth')).user).id,
@@ -41,14 +44,16 @@ export default function reducer(state = initState, action) {
             return state.withMutations(map => {
                 map.set('fetching', true)
                     .set('fetched', false)
-                    .set('error', null);
+                    .set('error', null)
+                    .deleteIn(['responses', action.type]);
             });
         case ActionTypes.CREATE_CLIENT_FULFILLED: {
             if (action.payload.entities.clients) {
                 return state.withMutations(map => {
                     map.set('fetching', false)
                         .set('fetched', true)
-                        .set('clients', mergeClients(state, Immutable.fromJS(action.payload.entities.clients)));
+                        .set('clients', mergeClients(state, Immutable.fromJS(action.payload.entities.clients)))
+                        .setIn(['responses', ActionTypes.CREATE_CLIENT], new Response({ body: action.payload.entities.clients[Object.keys(action.payload.entities.clients)[0]] }));
                 });
             } else {
                 return state.withMutations(map => {
@@ -62,7 +67,8 @@ export default function reducer(state = initState, action) {
                 return state.withMutations(map => {
                     map.set('fetching', false)
                         .set('fetched', true)
-                        .set('users', mergeUsers(state, Immutable.fromJS(action.payload.entities.users)));
+                        .set('users', mergeUsers(state, Immutable.fromJS(action.payload.entities.users)))
+                        .setIn(['responses', ActionTypes.CREATE_USER], new Response({ body: action.payload.entities.users[Object.keys(action.payload.entities.users)[0]] }));
                 });
             } else {
                 return state.withMutations(map => {

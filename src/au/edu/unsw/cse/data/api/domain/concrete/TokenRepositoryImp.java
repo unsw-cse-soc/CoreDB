@@ -7,11 +7,11 @@ import org.mongodb.morphia.Datastore;
 import au.edu.unsw.cse.data.api.domain.abstracts.TokenRepository;
 import au.edu.unsw.cse.data.api.domain.entity.RefreshToken;
 
-public class TokenRepositoryImp extends RepositoryImp<RefreshToken> implements TokenRepository {
+public class TokenRepositoryImp extends GlobalRepositoryImp<RefreshToken>
+    implements TokenRepository {
 
-	@Inject
-	public TokenRepositoryImp(Datastore datastore) {
-		super(datastore, RefreshToken.class);
-	}
-
+  @Inject
+  public TokenRepositoryImp(Datastore datastore) {
+    super(datastore);
+  }
 }

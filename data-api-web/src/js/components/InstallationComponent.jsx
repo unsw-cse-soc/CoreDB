@@ -4,6 +4,8 @@ import RenderInput from './ui/RenderInput';
 import RenderSubmitButton from './ui/RenderSubmitButton';
 import RenderDropDown from './ui/RenderDropDown';
 import { reduxForm, Field } from 'redux-form';
+import { CREATE_CLIENT, CREATE_USER } from '../constants/ActionTypes';
+import ResponseComponent from './ResponseComponent';
 import isNil from 'lodash/isNil';
 
 class InstallationComponent extends React.Component {
@@ -19,7 +21,7 @@ class InstallationComponent extends React.Component {
     }
 
     render() {
-        const { handleCreateClientSubmit, handleCreateUserSubmit, handleLoginSubmit, clients } = this.props;
+        const { handleCreateClientSubmit, handleCreateUserSubmit, handleLoginSubmit, responses } = this.props;
         return <div class="row">
             <div class="col s12 m12 l12">
                 <div class="card-panel teal lighten-2">Step1: Create your client</div>
@@ -28,6 +30,7 @@ class InstallationComponent extends React.Component {
                 In order to create a client, you need to send a POST request to https:// for example:
                 </p>
                 <CreateClientForm onSubmit={handleCreateClientSubmit} />
+                {responses.has(CREATE_CLIENT) && <ResponseComponent res={responses.get(CREATE_CLIENT)} />}
             </div>
             <div class="col s12 m12 l12">
                 <div class="card-panel teal lighten-2">Step2: Create users</div>
@@ -35,7 +38,8 @@ class InstallationComponent extends React.Component {
                     Once you created a client, you will be able to define one or multiple users. It can be a single admin user or multiple users.
                     Later one you can set permission based on the role of a user. Access level can be applied on action and resource level.
                 </p>
-                <CreateUserForm clients={clients} onSubmit={handleCreateUserSubmit} />
+                <CreateUserForm onSubmit={handleCreateUserSubmit} />
+                {responses.has(CREATE_USER) && <ResponseComponent res={responses.get(CREATE_USER)} />}
             </div>
             <div class="col s12 m12 l12">
                 <div class="card-panel teal lighten-2">Step3: Acquire access token</div>
@@ -83,9 +87,9 @@ CreateClientForm = reduxForm({
     validate: values => {
         const errors = {};
         const message = 'This field is mandatory.';
-        if (isNil(values.client)) {
-            errors.client = message;
-        }
+        // if (isNil(values.client)) {
+        //     errors.client = message;
+        // }
         return errors;
     }
 })(CreateClientForm);
@@ -96,7 +100,7 @@ class CreateUserForm extends React.Component {
     }
 
     render() {
-        const {clients} = this.props;
+        const {handleSubmit, submitting} = this.props;
         return <div class="row">
             <div class="col s12 m12 l12">
                 <div class="card blue-grey darken-1">
@@ -105,12 +109,17 @@ class CreateUserForm extends React.Component {
                     </div>
                 </div>
             </div>
-            <form class="col s12 m12 l12" onSubmit={this.props.onSubmit}>
-                <Field name="userClientId"
-                    id="user-client-input"
-                    label="Client"
-                    component={RenderDropDown}
-                    options={clients.map((client) => { return { value: client.id, text: client.name } }).toArray()} />
+            <form class="col s12 m12 l12" onSubmit={handleSubmit}>
+                <Field name="userClientName"
+                    id="userClientName-input"
+                    label="Client name"
+                    component={RenderInput}
+                    type="text" />
+                <Field name="userClientSecret"
+                    id="userClientSecret-input"
+                    label="Client secret"
+                    component={RenderInput}
+                    type="text" />
                 <Field name="userName"
                     id="username-input"
                     label="Username"

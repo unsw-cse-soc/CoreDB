@@ -8,7 +8,10 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
+
+import com.mongodb.MongoClient;
 
 import au.edu.unsw.cse.data.api.domain.abstracts.RelationRepository;
 import au.edu.unsw.cse.data.api.domain.entity.EntityRelation;
@@ -17,13 +20,14 @@ public class RelationRepositoryImp extends RepositoryImp<EntityRelation>
     implements RelationRepository {
 
   @Inject
-  public RelationRepositoryImp(Datastore datastore) {
-    super(datastore, EntityRelation.class);
+  public RelationRepositoryImp(Morphia morphia, MongoClient mongoClient) {
+    super(morphia, mongoClient);
   }
 
   @Override
-  public void create(EntityRelation entity) {
-    List<EntityRelation> paths = this.datastore.find(EntityRelation.class).field("path")
+  public void create(String databaseName, EntityRelation entity) {
+    Datastore dataStore = getDataStore("databaseName");
+    List<EntityRelation> paths = dataStore.find(EntityRelation.class).field("path")
         .endsWithIgnoreCase(entity.getSource()).asList();
     List<EntityRelation> updatedPaths = new LinkedList<>();
     paths.forEach(path -> {
@@ -43,15 +47,16 @@ public class RelationRepositoryImp extends RepositoryImp<EntityRelation>
       updatedPaths.add(newPath);
     });
     updatedPaths.add(entity);
-    this.datastore.save(updatedPaths);
+    dataStore.save(updatedPaths);
   }
 
   @Override
-  public List<EntityRelation> get(String source, List<String> types) {
+  public List<EntityRelation> get(String databaseName, String source, List<String> types) {
     String[] typesArray = new String[types.size()];
     typesArray = types.toArray(typesArray);
-    final Query<EntityRelation> query = datastore.createQuery(EntityRelation.class).field("source")
-        .equalIgnoreCase(source).filter("types in", typesArray);
+    final Query<EntityRelation> query =
+        getDataStore("databaseName").createQuery(EntityRelation.class).field("source")
+            .equalIgnoreCase(source).filter("types in", typesArray);
     List<EntityRelation> relations = query.asList();
     return relations;
   }

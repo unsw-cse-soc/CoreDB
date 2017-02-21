@@ -35,7 +35,8 @@ export function* handlePostUserRequest() {
                 userName: payload.userName,
                 password: payload.password,
                 role: payload.role,
-                clientId: payload.clientId
+                clientName: payload.clientName,
+                clientSecret: payload.clientSecret,
             });
             // call the success
             yield put(AuthAction.createUserFulfilled(normalize(data.body, schema.user)));
