@@ -9,6 +9,8 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 import store from "./store";
 import Layout from './pages/Layout';
 import MainContainer from './containers/MainContainer';
+import InstallationContainer from './containers/InstallationContainer';
+import DatabaseContainer from './containers/DatabaseContainer';
 import 'materialize-css/css/ghpages-materialize.css';
 import 'materialize-css/bin/jquery-2.1.1.min';
 import 'materialize-css/bin/materialize';
@@ -23,8 +25,9 @@ ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
             <Route name="home" path="/" component={Layout}>
-                <IndexRoute component={MainContainer}></IndexRoute>
-                <Route name="doc" path="(/:invId)" component={MainContainer}></Route>
+                <IndexRoute component={InstallationContainer}></IndexRoute>
+                <Route name="installation" path="installation" component={InstallationContainer}></Route>
+                <Route name="Database" path="database" component={DatabaseContainer}></Route>
             </Route>
         </Router>
     </Provider>,
