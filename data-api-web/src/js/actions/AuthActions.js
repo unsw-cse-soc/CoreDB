@@ -49,3 +49,24 @@ export function createUserRejected(error) {
         payload: error
     };
 }
+
+export function requestTokenByPassword(username, password, clientName, clientSecret) {
+    return {
+        type: ActionTypes.REQUEST_TOKEN,
+        payload: { username: username, password: password, clientName: clientName, clientSecret: clientSecret }
+    };
+}
+
+export function requestTokenByPasswordFulfilled(data) {
+    return {
+        type: ActionTypes.REQUEST_TOKEN_FULFILLED,
+        payload: data
+    };
+}
+
+export function requestTokenByPasswordRejected(error) {
+    return {
+        type: ActionTypes.REQUEST_TOKEN_REJECTED,
+        payload: error.response.body
+    };
+}

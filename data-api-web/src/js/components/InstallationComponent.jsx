@@ -4,7 +4,7 @@ import RenderInput from './ui/RenderInput';
 import RenderSubmitButton from './ui/RenderSubmitButton';
 import RenderDropDown from './ui/RenderDropDown';
 import { reduxForm, Field } from 'redux-form';
-import { CREATE_CLIENT, CREATE_USER } from '../constants/ActionTypes';
+import { CREATE_CLIENT, CREATE_USER, REQUEST_TOKEN } from '../constants/ActionTypes';
 import ResponseComponent from './ResponseComponent';
 import isNil from 'lodash/isNil';
 
@@ -48,6 +48,7 @@ class InstallationComponent extends React.Component {
                     The token is valid for 15 minutes and you will need to request a new token using the refresh token which be provided with the access token.
                 </p>
                 <GetTokeForm onSubmit={handleLoginSubmit} />
+                {responses.has(REQUEST_TOKEN) && <ResponseComponent res={responses.get(REQUEST_TOKEN)} />}
             </div>
         </div>
     }
@@ -135,7 +136,7 @@ class CreateUserForm extends React.Component {
                     label="Role"
                     component={RenderInput}
                     type="text" />
-                <RenderSubmitButton label="Submit" id="client-submit" name="client-submit" />
+                <RenderSubmitButton label="Submit" id="user-submit" name="user-submit" />
             </form>
         </div>
     }
@@ -157,6 +158,7 @@ class GetTokeForm extends React.Component {
     }
 
     render() {
+        const {handleSubmit, submitting} = this.props;
         return <div class="row">
             <div class="col s12 m12 l12">
                 <div class="card blue-grey darken-1">
@@ -165,7 +167,17 @@ class GetTokeForm extends React.Component {
                     </div>
                 </div>
             </div>
-            <form class="col s12 m12 l12" onSubmit={this.props.onSubmit}>
+            <form class="col s12 m12 l12" onSubmit={handleSubmit}>
+                <Field name="loginClientName"
+                    id="loginClientName-input"
+                    label="Client name"
+                    component={RenderInput}
+                    type="text" />
+                <Field name="loginClientSecret"
+                    id="loginClientSecret-input"
+                    label="Client secret"
+                    component={RenderInput}
+                    type="text" />
                 <Field name="loginUserName"
                     id="login-userName-input"
                     label="Username"
@@ -176,7 +188,7 @@ class GetTokeForm extends React.Component {
                     label="Password"
                     component={RenderInput}
                     type="password" />
-                <RenderSubmitButton label="Submit" id="client-submit" name="client-submit" />
+                <RenderSubmitButton label="Submit" id="login-submit" name="login-submit" />
             </form>
         </div>
     }

@@ -46,3 +46,26 @@ export function* handlePostUserRequest() {
         }
     }
 }
+
+export function* handleLoginRequest() {
+    // run the daemon
+    while (true) {
+        try {
+            // wait for a login request
+            const {payload} = yield take(ActionTypes.REQUEST_TOKEN);
+            // call the api
+            const data = yield call(Api.Form, '/api/oauth/token', {
+                grant_type: "password",
+                client_id: payload.clientName,
+                client_secret: payload.clientSecret,
+                username: payload.username,
+                password: payload.password
+            });
+            // call the success
+            yield put(AuthAction.requestTokenByPasswordFulfilled(data.body));
+        } catch (e) {
+            // call the error
+            yield put(AuthAction.requestTokenByPasswordRejected(e));
+        }
+    }
+}

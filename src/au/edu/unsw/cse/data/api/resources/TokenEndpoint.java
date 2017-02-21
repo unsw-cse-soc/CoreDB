@@ -13,6 +13,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -27,12 +28,16 @@ import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import au.edu.unsw.cse.data.api.domain.abstracts.ClientRepository;
 import au.edu.unsw.cse.data.api.domain.abstracts.TokenRepository;
 import au.edu.unsw.cse.data.api.domain.abstracts.UserRepository;
 import au.edu.unsw.cse.data.api.domain.entity.Client;
 import au.edu.unsw.cse.data.api.domain.entity.RefreshToken;
 import au.edu.unsw.cse.data.api.domain.entity.User;
+import au.edu.unsw.cse.data.api.model.ViewUserBindingModel;
 import au.edu.unsw.cse.data.api.security.Claims;
 import au.edu.unsw.cse.data.api.security.OAuthJwtIssuerImpl;
 import au.edu.unsw.cse.data.api.security.OAuthRequestWrapper;
@@ -99,15 +104,20 @@ public class TokenEndpoint {
       rToken.setSubject(user.getUserName());
       tokenRepo.create(rToken);
 
+      ObjectMapper mapper = new ObjectMapper();
+      String userInString = mapper.writeValueAsString(new ViewUserBindingModel(user));
+
       OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK)
           .setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn("3600")
-          .setParam("username", user.getUserName()).buildJSONMessage();
+          .setParam("user", userInString).buildJSONMessage();
       return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
 
     } catch (OAuthProblemException e) {
       OAuthResponse res = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e)
           .buildJSONMessage();
       return Response.status(res.getResponseStatus()).entity(res.getBody()).build();
+    } catch (JsonProcessingException e) {
+      return Response.status(Status.INTERNAL_SERVER_ERROR).build();
     }
   }
 

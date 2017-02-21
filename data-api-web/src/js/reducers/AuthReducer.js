@@ -6,14 +6,15 @@ import Client from '../models/Client';
 import ClientMap from '../models/ClientMap';
 import ResponseMap from '../models/ResponseMap';
 import Response from '../models/Response';
+import Token from '../models/Token';
 import * as ActionTypes from '../constants/ActionTypes';
 
 const initState = Immutable.Map({
-    // token: new Token({
-    //     accessToken: isNil(sessionStorage.getItem('auth')) ? null : JSON.parse(sessionStorage.getItem('auth')).accessToken,
-    //     refreshToken: isNil(sessionStorage.getItem('auth')) ? null : JSON.parse(sessionStorage.getItem('auth')).refreshToken,
-    //     expiresIn: isNil(sessionStorage.getItem('auth')) ? null : JSON.parse(sessionStorage.getItem('auth')).expiresIn,
-    // }),
+    token: new Token({
+        accessToken: isNil(sessionStorage.getItem('auth')) ? null : JSON.parse(sessionStorage.getItem('auth')).accessToken,
+        refreshToken: isNil(sessionStorage.getItem('auth')) ? null : JSON.parse(sessionStorage.getItem('auth')).refreshToken,
+        expiresIn: isNil(sessionStorage.getItem('auth')) ? null : JSON.parse(sessionStorage.getItem('auth')).expiresIn,
+    }),
     fetching: false,
     fetched: false,
     error: null,
@@ -23,11 +24,8 @@ const initState = Immutable.Map({
     //represents the logged user
     user: new User({
         id: isNil(sessionStorage.getItem('auth')) ? null : JSON.parse(JSON.parse(sessionStorage.getItem('auth')).user).id,
-        name: isNil(sessionStorage.getItem('auth')) ? '' : JSON.parse(JSON.parse(sessionStorage.getItem('auth')).user).name,
-        lastName: isNil(sessionStorage.getItem('auth')) ? '' : JSON.parse(JSON.parse(sessionStorage.getItem('auth')).user).lastName,
-        email: isNil(sessionStorage.getItem('auth')) ? '' : JSON.parse(JSON.parse(sessionStorage.getItem('auth')).user).email,
-        createdAt: isNil(sessionStorage.getItem('auth')) ? null : JSON.parse(JSON.parse(sessionStorage.getItem('auth')).user).createdAt,
-        updatedAt: isNil(sessionStorage.getItem('auth')) ? null : JSON.parse(JSON.parse(sessionStorage.getItem('auth')).user).updatedAt,
+        userName: isNil(sessionStorage.getItem('auth')) ? '' : JSON.parse(JSON.parse(sessionStorage.getItem('auth')).user).userName,
+        role: isNil(sessionStorage.getItem('auth')) ? '' : JSON.parse(JSON.parse(sessionStorage.getItem('auth')).user).role
     })
 })
 
@@ -41,12 +39,14 @@ export default function reducer(state = initState, action) {
     switch (action.type) {
         case ActionTypes.CREATE_CLIENT:
         case ActionTypes.CREATE_USER:
+        case ActionTypes.REQUEST_TOKEN: {
             return state.withMutations(map => {
                 map.set('fetching', true)
                     .set('fetched', false)
                     .set('error', null)
                     .deleteIn(['responses', action.type]);
             });
+        }
         case ActionTypes.CREATE_CLIENT_FULFILLED: {
             if (action.payload.entities.clients) {
                 return state.withMutations(map => {
@@ -77,13 +77,30 @@ export default function reducer(state = initState, action) {
                 });
             }
         }
+        case ActionTypes.REQUEST_TOKEN_FULFILLED: {
+            sessionStorage.clear();
+            sessionStorage.setItem('auth', JSON.stringify({ accessToken: action.payload.access_token, refreshToken: action.payload.refresh_token, expiresIn: action.payload.expires_in, user: action.payload.user }));
+            return state.withMutations(map => {
+                map.set('fetching', false)
+                    .set('fetched', true)
+                    .setIn(['responses', ActionTypes.REQUEST_TOKEN], new Response({ body: { accessToken: action.payload.access_token, refreshToken: action.payload.refresh_token, expiresIn: action.payload.expires_in } }))
+                    .set('user', new User(JSON.parse(action.payload.user)))
+                    .set('token', new Token({
+                        accessToken: action.payload.access_token,
+                        refreshToken: action.payload.refresh_token,
+                        expiresIn: action.payload.expires_in
+                    }));
+            });
+        }
         case ActionTypes.CREATE_CLIENT_REJECTED:
         case ActionTypes.CREATE_USER_REJECTED:
+        case ActionTypes.REQUEST_TOKEN_REJECTED: {
             return state.withMutations(map => {
                 map.set('fetching', false)
                     .set('fetched', false)
                     .set('error', action.payload);
             });
+        }
     }
     return state;
 }
