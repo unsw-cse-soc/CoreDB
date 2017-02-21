@@ -70,3 +70,9 @@ export function requestTokenByPasswordRejected(error) {
         payload: error.response.body
     };
 }
+
+export function clearResponses() {
+    return {
+        type: ActionTypes.CLEAR_AUTH_RESPONSES
+    }
+}

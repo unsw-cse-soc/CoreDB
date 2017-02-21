@@ -101,6 +101,9 @@ export default function reducer(state = initState, action) {
                     .set('error', action.payload);
             });
         }
+        case ActionTypes.CLEAR_AUTH_RESPONSES: {
+            return state.set('responses', ResponseMap());
+        }
     }
     return state;
 }

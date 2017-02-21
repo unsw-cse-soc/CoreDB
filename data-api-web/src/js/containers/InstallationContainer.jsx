@@ -1,10 +1,15 @@
 import React from 'react';
 import InstallationComponent from '../components/InstallationComponent';
 import { connect } from 'react-redux';
-import { createClient, createUser, requestTokenByPassword } from '../actions/AuthActions';
+import { createClient, createUser, requestTokenByPassword, clearResponses } from '../actions/AuthActions';
 import { getClients, getResponses } from '../selectors/AuthSelectors';
 
 class InstallationContainer extends React.Component {
+
+    componentWillUnmount() {
+        this.props.onClearResponses();
+    }
+
     render() {
         const {responses, onCreateClient, onCreateUser, onRequestToken} = this.props;
         return <InstallationComponent
@@ -31,6 +36,9 @@ const mapDispatchToProps = dispatch => {
         },
         onRequestToken(userName, password, clientName, clientSecret) {
             dispatch(requestTokenByPassword(userName, password, clientName, clientSecret));
+        },
+        onClearResponses() {
+            dispatch(clearResponses());
         }
     };
 };
