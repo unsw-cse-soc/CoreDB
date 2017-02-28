@@ -12,7 +12,7 @@ export function* handlePostClientRequest() {
             // wait for a create client request
             const {payload} = yield take(ActionTypes.CREATE_CLIENT);
             // call the api
-            const data = yield call(Api.Post, '/api/client', {
+            const data = yield call(Api.Post, '/api/clients', {
                 name: payload.name
             });
             // call the success
