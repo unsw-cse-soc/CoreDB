@@ -37,7 +37,7 @@ class DatabaseComponent extends React.Component {
             <div class="col s12 m12 l12">
                 <div class="card-panel teal lighten-2">Delete a database</div>
                 <p class="caption">
-                    You are able to delete a database using a POST request. Please be advised that it is not possible to recover a deleted database.
+                    You are able to delete a database using a DELETE request. Please be advised that it is not possible to recover a deleted database.
                 </p>
                 <DeleteDatabaseForm onSubmit={handleDeleteDatabaseSubmit} />
             </div>

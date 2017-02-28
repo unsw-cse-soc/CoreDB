@@ -18,19 +18,7 @@ export default function reducer(state = Immutable.Map({
         'entity': new Menu({
             id: 'entity',
             title: 'Entity',
-            children: Immutable.Set.of('schema', 'store')
-        }),
-        'schema': new Menu({
-            isRoot: false,
-            id: 'schema',
-            title: 'Schema',
-            url: '/schema'
-        }),
-        'store': new Menu({
-            isRoot: false,
-            id: 'store',
-            title: 'Store',
-            url: '/store'
+            url: '/entity'
         }),
         'relations': new Menu({
             id: 'relations',
@@ -41,11 +29,6 @@ export default function reducer(state = Immutable.Map({
             id: 'query',
             title: 'Query',
             url: '/query'
-        }),
-        'indexing': new Menu({
-            id: 'indexing',
-            title: 'Indexing',
-            url: '/indexing'
         })
     }),
     activeMenu: 'installation',

@@ -1,9 +1,12 @@
 import React from 'react';
-import SchemaComponent from "../components/SchemaComponent";
+import EntityComponent from "../components/EntityComponent";
 import { createClient } from '../actions/AuthActions';
 
 export default class EntityContainer extends React.Component {
     render() {
-        return <SchemaComponent />
+        return <EntityComponent
+            handleCreateEntitySubmit={values => {
+                
+            }} />
     }
 }
