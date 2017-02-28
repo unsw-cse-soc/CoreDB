@@ -20,7 +20,7 @@ import au.edu.unsw.cse.data.api.index.abstracts.EntityIndex;
 import au.edu.unsw.cse.data.api.model.CreateRelationBindingModel;
 import au.edu.unsw.cse.data.api.security.Secured;
 
-@Path("relation")
+@Path("relations")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class RelationResource {

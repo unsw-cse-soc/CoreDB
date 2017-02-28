@@ -15,7 +15,7 @@ public class ElasticSearchClientFactory implements Factory<TransportClient> {
     try {
       client = TransportClient.builder().build()
           .addTransportAddress(
-              new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9200));
+              new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
     } catch (UnknownHostException e) {
       e.printStackTrace();
     }

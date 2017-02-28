@@ -18,9 +18,10 @@ public class DatabaseRepositoryImp extends GlobalRepositoryImp<Database>
   }
 
   @Override
-  public Database getByClientId(String clientId, String databaseName) {
+  public Database getByClientId(String clientId, String databaseName, String databaseType) {
     final Query<Database> query = datastore.createQuery(Database.class);
     query.and(query.criteria("name").equalIgnoreCase(databaseName),
+        query.criteria("type").equalIgnoreCase(databaseType),
         query.criteria("client").equal(new Key<>(Client.class, "clients", new ObjectId(clientId))));
     Database database = query.get();
     return database;

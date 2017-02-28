@@ -31,7 +31,7 @@ export function* handlePostUserRequest() {
             // wait for a create user request
             const {payload} = yield take(ActionTypes.CREATE_USER);
             // call the api
-            const data = yield call(Api.Post, '/api/account/register', {
+            const data = yield call(Api.Post, '/api/account', {
                 userName: payload.userName,
                 password: payload.password,
                 role: payload.role,

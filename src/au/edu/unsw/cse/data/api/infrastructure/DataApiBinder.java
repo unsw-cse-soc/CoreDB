@@ -49,9 +49,5 @@ public class DataApiBinder extends AbstractBinder {
     bind(ClientRepositoryImp.class).to(ClientRepository.class);
     bind(DatabaseRepositoryImp.class).to(DatabaseRepository.class);
     bind(ElasticSearchEntityIndex.class).to(EntityIndex.class);
-    // bind(ClientRepositoryImp.class).to((Class<Repository<Client>>) (Class<?>) Client.class);
-
-    // bind((Class<RepositoryImp2<Client>>) (Class<?>) Client.class)
-    // .to((Class<Repository<Client>>) (Class<?>) Client.class);
   }
 }

@@ -30,7 +30,7 @@ import au.edu.unsw.cse.data.api.security.AppUser;
 import au.edu.unsw.cse.data.api.security.Secured;
 import au.edu.unsw.cse.data.api.security.UserInfo;
 
-@Path("entity")
+@Path("entities")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class EntityResource {
@@ -65,11 +65,13 @@ public class EntityResource {
   }
 
   @POST
-  @Path("/{database}/{type}")
+  @Path("/{databasename}/{datasetname}/{entitytype}")
   @Secured
-  public Response create(@AppUser UserInfo userInfo, @PathParam("type") String type,
-      @PathParam("database") String databaseName, ObjectNode entity) {
-    Database database = databaseRepository.getByClientId(userInfo.getClientId(), databaseName);
+  public Response create(@AppUser UserInfo userInfo, @PathParam("databasename") String databasename,
+      @PathParam("datasetname") String datasetname, @PathParam("entitytype") String entitytype,
+      ObjectNode entity) {
+    Database database =
+        databaseRepository.getByClientId(userInfo.getClientId(), datasetname, databasename);
     if (database == null) {
       // return error
     }
@@ -78,63 +80,37 @@ public class EntityResource {
     Map<String, Object> mapObject = mapper.convertValue(entity, Map.class);
     // create mongo object
     document.putAll(mapObject);
-    document.append("type", type);
+    document.append("type", entitytype);
     document.append("createdBy", userInfo.getName());
     document.append("updatedBy", userInfo.getName());
     document.append("clientId", userInfo.getClientId());
     document.append("databaseId", database.getId());
     // store mongo object
-    entityRepository.create(document, databaseName, type);
-    String insertedId = document.getObjectId("_id").toString();
-    entityIndex.createIndex(mapObject, database.getId(), type, insertedId);
+    entityRepository.create(document, datasetname, entitytype);
+    String insertedId = document.getString("id");
+    entityIndex.createIndex(mapObject, database.getId(), entitytype, insertedId);
     entity.fields().forEachRemaining(field -> {
     });
     return Response.ok(document).build();
-    // List<Document> schemas = entityRepository.filter(userInfo.getClientId(), "schemas",
-    // Stream
-    // .of(new String[] {"clientId", userInfo.getClientId()},
-    // new String[] {"schema_name", type})
-    // .collect(Collectors.toMap(s -> s[0], s -> s[1])));
-    // if (schemas == null || schemas.isEmpty()) {
-    // return Response.status(Status.BAD_REQUEST).build();
-    // } else {
-    // Document schema = schemas.get(0);
-    // entity.fields().forEachRemaining(field -> {
-    // // switch (schema.getString("")) {
-    // // case value:
-    //
-    // // break;
-    //
-    // // default:
-    // // break;
-    // // }
-    // document.append(field.getKey(), field.getValue().asText());
-    // });
-    // document.append("type", type);
-    // document.append("createdBy", userInfo.getName());
-    // document.append("updatedBy", userInfo.getName());
-    // document.append("clientId", userInfo.getClientId());
-    // entityRepository.create(document, String.format("%s_%s", userInfo.getClientId(), type));
-    // return Response.ok(document).build();
   }
 
 
-//  @GET
-//  @Path("/get/{type}/{id}")
-//  @Secured
-//  public Response get(@AppUser UserInfo userInfo, @PathParam("type") String type,
-//      @PathParam("id") String id, @QueryParam("include") List<String> includes) {
-//    List<Document> documents = entityRepository.get(id, includes, userInfo.getClientId(),
-//        String.format("%s_%s", userInfo.getClientId(), type));
-//    return Response.ok(documents).build();
-//  }
-//
-//  @GET
-//  @Path("/list/{type}")
-//  @Secured
-//  public Response getAll(@AppUser UserInfo userInfo, @PathParam("type") String type) {
-//    List<Document> documents = entityRepository.getAll(userInfo.getClientId(),
-//        String.format("%s_%s", userInfo.getClientId(), type));
-//    return Response.ok(documents).build();
-//  }
+  // @GET
+  // @Path("/get/{type}/{id}")
+  // @Secured
+  // public Response get(@AppUser UserInfo userInfo, @PathParam("type") String type,
+  // @PathParam("id") String id, @QueryParam("include") List<String> includes) {
+  // List<Document> documents = entityRepository.get(id, includes, userInfo.getClientId(),
+  // String.format("%s_%s", userInfo.getClientId(), type));
+  // return Response.ok(documents).build();
+  // }
+  //
+  // @GET
+  // @Path("/list/{type}")
+  // @Secured
+  // public Response getAll(@AppUser UserInfo userInfo, @PathParam("type") String type) {
+  // List<Document> documents = entityRepository.getAll(userInfo.getClientId(),
+  // String.format("%s_%s", userInfo.getClientId(), type));
+  // return Response.ok(documents).build();
+  // }
 }

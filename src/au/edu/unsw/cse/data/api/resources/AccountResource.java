@@ -31,7 +31,6 @@ public class AccountResource {
     this.clientRepo = clientRepo;
   }
 
-  @Path("/register")
   @POST
   public Response register(CreateUserBindingModel userInfo) {
     Client client = clientRepo.get(userInfo.getClientName(), userInfo.getClientSecret());

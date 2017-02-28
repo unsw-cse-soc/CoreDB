@@ -18,7 +18,7 @@ import au.edu.unsw.cse.data.api.domain.entity.Client;
 import au.edu.unsw.cse.data.api.model.CreateClientBindingModel;
 import au.edu.unsw.cse.data.api.model.ViewClientBindingModel;
 
-@Path("client")
+@Path("clients")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ClientResource {

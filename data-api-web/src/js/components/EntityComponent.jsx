@@ -55,7 +55,6 @@ const renderAttributes = ({ fields, meta: { touched, error } }) => (
                     label="Value"
                     component={RenderInput}
                     withContainer={false}
-                    normalize={trimValue}
                     type="text" />
             </div>
         )}
