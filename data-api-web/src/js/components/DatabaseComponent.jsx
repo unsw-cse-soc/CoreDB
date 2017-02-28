@@ -3,7 +3,12 @@ import ReactDOM from "react-dom";
 import RenderInput from './ui/RenderInput';
 import RenderDropDown from './ui/RenderDropDown';
 import RenderSubmitButton from './ui/RenderSubmitButton';
-import { reduxForm, Field } from 'redux-form';
+import { connect } from 'react-redux';
+import { reduxForm, Field, formValueSelector } from 'redux-form';
+import isNil from 'lodash/isNil';
+import isEmpty from 'lodash/isEmpty';
+import trimValue from '../services/TrimValue';
+import { CREATE_DATABASE } from '../constants/ActionTypes';
 
 class DatabaseComponent extends React.Component {
 
@@ -18,7 +23,7 @@ class DatabaseComponent extends React.Component {
     }
 
     render() {
-        const { handleCreateDatabaseSubmit, handleDeleteDatabaseSubmit } = this.props;
+        const { handleCreateDatabaseSubmit, handleDeleteDatabaseSubmit, responses } = this.props;
         return <div class="row">
             <div class="col s12 m12 l12">
                 <div class="card-panel teal lighten-2">Create a database</div>
@@ -27,6 +32,7 @@ class DatabaseComponent extends React.Component {
                 In order to create a database, you need to set its type and name.
                 </p>
                 <CreateDatabaseForm onSubmit={handleCreateDatabaseSubmit} />
+                {responses.has(CREATE_DATABASE) && <ResponseComponent res={responses.get(CREATE_DATABASE)} />}
             </div>
             <div class="col s12 m12 l12">
                 <div class="card-panel teal lighten-2">Delete a database</div>
@@ -47,21 +53,23 @@ class CreateDatabaseForm extends React.Component {
     }
 
     render() {
+        const {handleSubmit, submitting, databaseNameValue, databaseTypeValue} = this.props;
         return <div class="row">
             <div class="col s12 m12 l12">
                 <div class="card blue-grey darken-1">
                     <div class="card-content white-text">
-                        <pre>curl -X POST -d --data "{"this is for test"}" http://example.com/path/to/resource --header "Content-Type:application/json"</pre>
+                        <pre>{`curl -H "Content-Type: application/json" -H "Authorization: Bearer ACCESS_TOKEN" -X POST -d '{"name":"${(isNil(databaseNameValue) || isEmpty(databaseNameValue)) ? 'Dataset_NAME' : databaseNameValue}", "type": "${(isNil(databaseTypeValue) || isEmpty(databaseTypeValue)) ? 'Database_NAME' : databaseTypeValue}"}' http://CoreDB/api/databases`}</pre>
                     </div>
                 </div>
             </div>
-            <form class="col s12 m12 l12" onSubmit={this.props.onSubmit}>
+            <form class="col s12 m12 l12" onSubmit={handleSubmit}>
                 <div class="row">
                     <Field name="databaseName"
                         id="database-name-input"
                         label="Name"
                         component={RenderInput}
                         withContainer={false}
+                        normalize={trimValue}
                         type="text" />
                     <Field name="databaseType"
                         id="database-type-input"
@@ -69,8 +77,12 @@ class CreateDatabaseForm extends React.Component {
                         component={RenderDropDown}
                         withContainer={false}
                         options={[
-                            { value: 'relational', text: 'Relational' },
-                            { value: 'json', text: 'JSON Store' }
+                            { value: 'postgresql', text: 'PostgreSQL' },
+                            { value: 'mysql', text: 'PostgreSQL' },
+                            { value: 'oracle', text: 'PostgreSQL' },
+                            { value: 'mongodb', text: 'MongoDB' },
+                            { value: 'hive', text: 'Hive' },
+                            { value: 'hbase', text: 'HBase' }
                         ]} />
                 </div>
                 <RenderSubmitButton label="Submit" id="client-submit" name="client-submit" />
@@ -87,25 +99,38 @@ CreateDatabaseForm = reduxForm({
     }
 })(CreateDatabaseForm);
 
+const databaseFormSelector = formValueSelector('newDatabaseForm');
+
+CreateDatabaseForm = connect(
+    state => {
+        return {
+            databaseNameValue: databaseFormSelector(state, 'databaseName'),
+            databaseTypeValue: databaseFormSelector(state, 'databaseType')
+        }
+    }
+)(CreateDatabaseForm);
+
 class DeleteDatabaseForm extends React.Component {
     constructor(props) {
         super(props);
     }
 
     render() {
+        const { handleSubmit, submitting } = this.props;
         return <div class="row">
             <div class="col s12 m12 l12">
                 <div class="card blue-grey darken-1">
                     <div class="card-content white-text">
-                        <pre>curl -X POST -d --data "{"this is for test"}" http://example.com/path/to/resource --header "Content-Type:application/json"</pre>
+                        <pre>{`curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" -X DELETE http://CoreDB/api/databases/{DATABASE_NAME}`}</pre>
                     </div>
                 </div>
             </div>
-            <form class="col s12 m12 l12" onSubmit={this.props.onSubmit}>
+            <form class="col s12 m12 l12" onSubmit={handleSubmit}>
                 <Field name="databaseName"
                     id="database-name-input"
                     label="Name"
                     component={RenderInput}
+                    normalize={trimValue}
                     type="text" />
                 <RenderSubmitButton label="Submit" id="client-submit" name="client-submit" />
             </form>

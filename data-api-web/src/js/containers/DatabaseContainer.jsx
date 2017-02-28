@@ -1,15 +1,37 @@
 import React from 'react';
 import DatabaseComponent from "../components/DatabaseComponent";
-import { createClient } from '../actions/AuthActions';
+import { connect } from 'react-redux';
+import { createDatabase } from '../actions/DatabaseActions';
+import { getAccessToken } from '../selectors/AuthSelectors';
+import { getResponses } from '../selectors/DatabaseSelectors';
 
-export default class DatabaseContainer extends React.Component {
+class DatabaseContainer extends React.Component {
     render() {
+        const {token, responses, onCreateDatabase} = this.props;
         return <DatabaseComponent
-            handleCreateDatabaseSubmit={(values, dispatch) => {
+            responses={responses}
+            handleCreateDatabaseSubmit={values => {
+                onCreateDatabase(token, values.databaseName, values.databaseType);
+            }}
+            handleDeleteDatabaseSubmit={values => {
 
-            } }
-            handleDeleteDatabaseSubmit={(values, dispatch) => {
-                dispatch(createClient(values.client));
-            } } />
+            }} />
     }
 }
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onCreateDatabase(token, databaseName, databaseType) {
+            dispatch(createDatabase(token, databaseName, databaseType));
+        }
+    };
+};
+
+const mapStateToProps = (state) => {
+    return {
+        token: getAccessToken(state),
+        responses: getResponses(state)
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(DatabaseContainer);
