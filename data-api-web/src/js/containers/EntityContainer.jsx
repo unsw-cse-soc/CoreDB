@@ -6,8 +6,9 @@ import { getAccessToken } from '../selectors/AuthSelectors';
 
 class EntityContainer extends React.Component {
     render() {
-        const {token, onCreateEntity} = this.props;
+        const {token, onCreateEntity, done} = this.props;
         return <EntityComponent
+            done={done}
             handleCreateEntitySubmit={values => {
                 onCreateEntity(token, values.databaseName, values.datasetName, values.entityType, values.attributes);
             }} />
@@ -24,7 +25,8 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = (state) => {
     return {
-        token: getAccessToken(state)
+        token: getAccessToken(state),
+        done: state.entity.get('fetched')
     };
 }
 

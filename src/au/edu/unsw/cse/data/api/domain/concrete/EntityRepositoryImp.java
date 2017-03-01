@@ -115,93 +115,94 @@ public class EntityRepositoryImp implements EntityRepository {
   @Override
   public List<Document> get(String id, List<String> includes, String clientId, String database,
       String collection) {
-    List<EntityRelation> relations = relationRepository.get(database, id, includes);
-    ConcurrentHashMap<String, Set<ObjectId>> requiredEntities =
-        new ConcurrentHashMap<String, Set<ObjectId>>();
-    relations.forEach(relation -> {
-      for (int i = 0; i < relation.getPath().length; i++) {
-        String itemType = relation.getEntityTypes()[i + 1];
-        String entityId = relation.getPath()[i];
-        if (requiredEntities.putIfAbsent(itemType, new HashSet<ObjectId>() {
-          {
-            add(new ObjectId(entityId));
-          }
-        }) == null) {
-          requiredEntities.get(itemType).add(new ObjectId(entityId));
-        }
-      }
-    });
-    // add source
-    requiredEntities.put(relations.get(0).getEntityTypes()[0], new HashSet<ObjectId>() {
-      {
-        add(new ObjectId(id));
-      }
-    });
-    List<Document> entities = new LinkedList<Document>();
-    // get all entities
-    requiredEntities.forEach(10, (key, value) -> {
-      MongoCollection<Document> col =
-          getMongoDatabase(database).getCollection(String.format("%s_%s", clientId, key));
-      BasicDBObject inQuery = new BasicDBObject("$in", value.toArray());
-      BasicDBObject query = new BasicDBObject("_id", inQuery);
-      entities.addAll(col.find(query).into(new ArrayList<Document>()));
-    });
-    List<Document> results = new LinkedList<Document>();
-    relations.forEach(relation -> {
-      if (relation.getPath().length == 1) {
-        Document source = results.stream()
-            .filter(doc -> doc.getObjectId("_id").toString().equalsIgnoreCase(id)).findAny()
-            .orElse(entities.stream()
-                .filter(entity -> entity.getObjectId("_id").toString().equalsIgnoreCase(id))
-                .findFirst().get());
-        int indexOfSourceType =
-            ArrayUtils.indexOf(relation.getEntityTypes(), source.getString("type"));
-        String destinationType = relation.getEntityTypes()[indexOfSourceType + 1];
-        Document destination = entities.stream().filter(entity -> entity.getObjectId("_id")
-            .toString().equalsIgnoreCase(relation.getPath()[indexOfSourceType])).findFirst().get();
-        if (source.containsKey(destinationType)) {
-          Document[] docArray = source.get(destinationType, Document[].class);
-          source.replace(destinationType, ArrayUtils.add(docArray, destination));
-        } else {
-          source.append(destinationType, new Document[] {destination});
-        }
-        if (!results.stream().filter(doc -> doc.getObjectId("_id").toString().equalsIgnoreCase(id))
-            .findAny().isPresent()) {
-          results.add(source);
-        }
-      } else {
-        for (int i = 0; i < relation.getPath().length - 1; i++) {
-          if (includes.contains(relation.getEntityTypes()[i + 1])
-              && includes.contains(relation.getEntityTypes()[i + 2])) {
-            String sourceId = relation.getPath()[i];
-            String destinationId = relation.getPath()[i + 1];
-
-            Document source =
-                results.stream()
-                    .filter(doc -> doc.getObjectId("_id").toString().equalsIgnoreCase(sourceId))
-                    .findAny()
-                    .orElse(entities.stream().filter(
-                        entity -> entity.getObjectId("_id").toString().equalsIgnoreCase(sourceId))
-                        .findFirst().get());
-            String destinationType = relation.getEntityTypes()[i + 2];
-            if (!source.containsKey(destinationType)
-                || !Arrays.asList(source.get(destinationType, Document[].class)).stream()
-                    .filter(doc -> doc.get("_id").toString().equalsIgnoreCase(destinationId))
-                    .findAny().isPresent()) {
-              Document detDoc = entities.stream()
-                  .filter(doc -> doc.getObjectId("_id").toString().equalsIgnoreCase(destinationId))
-                  .findFirst().get();
-              if (!source.containsKey(destinationType)) {
-                source.append(destinationType, new Document[] {detDoc});
-              } else {
-                Document[] docArray = source.get(destinationType, Document[].class);
-                source.replace(destinationType, ArrayUtils.add(docArray, detDoc));
-              }
-            }
-          }
-        }
-      }
-    });
-    return results;
+    return null;
+//    List<EntityRelation> relations = relationRepository.get(database, id, includes);
+//    ConcurrentHashMap<String, Set<ObjectId>> requiredEntities =
+//        new ConcurrentHashMap<String, Set<ObjectId>>();
+//    relations.forEach(relation -> {
+//      for (int i = 0; i < relation.getPath().length; i++) {
+//        String itemType = relation.getEntityTypes()[i + 1];
+//        String entityId = relation.getPath()[i];
+//        if (requiredEntities.putIfAbsent(itemType, new HashSet<ObjectId>() {
+//          {
+//            add(new ObjectId(entityId));
+//          }
+//        }) == null) {
+//          requiredEntities.get(itemType).add(new ObjectId(entityId));
+//        }
+//      }
+//    });
+//    // add source
+//    requiredEntities.put(relations.get(0).getEntityTypes()[0], new HashSet<ObjectId>() {
+//      {
+//        add(new ObjectId(id));
+//      }
+//    });
+//    List<Document> entities = new LinkedList<Document>();
+//    // get all entities
+//    requiredEntities.forEach(10, (key, value) -> {
+//      MongoCollection<Document> col =
+//          getMongoDatabase(database).getCollection(String.format("%s_%s", clientId, key));
+//      BasicDBObject inQuery = new BasicDBObject("$in", value.toArray());
+//      BasicDBObject query = new BasicDBObject("_id", inQuery);
+//      entities.addAll(col.find(query).into(new ArrayList<Document>()));
+//    });
+//    List<Document> results = new LinkedList<Document>();
+//    relations.forEach(relation -> {
+//      if (relation.getPath().length == 1) {
+//        Document source = results.stream()
+//            .filter(doc -> doc.getObjectId("_id").toString().equalsIgnoreCase(id)).findAny()
+//            .orElse(entities.stream()
+//                .filter(entity -> entity.getObjectId("_id").toString().equalsIgnoreCase(id))
+//                .findFirst().get());
+//        int indexOfSourceType =
+//            ArrayUtils.indexOf(relation.getEntityTypes(), source.getString("type"));
+//        String destinationType = relation.getEntityTypes()[indexOfSourceType + 1];
+//        Document destination = entities.stream().filter(entity -> entity.getObjectId("_id")
+//            .toString().equalsIgnoreCase(relation.getPath()[indexOfSourceType])).findFirst().get();
+//        if (source.containsKey(destinationType)) {
+//          Document[] docArray = source.get(destinationType, Document[].class);
+//          source.replace(destinationType, ArrayUtils.add(docArray, destination));
+//        } else {
+//          source.append(destinationType, new Document[] {destination});
+//        }
+//        if (!results.stream().filter(doc -> doc.getObjectId("_id").toString().equalsIgnoreCase(id))
+//            .findAny().isPresent()) {
+//          results.add(source);
+//        }
+//      } else {
+//        for (int i = 0; i < relation.getPath().length - 1; i++) {
+//          if (includes.contains(relation.getEntityTypes()[i + 1])
+//              && includes.contains(relation.getEntityTypes()[i + 2])) {
+//            String sourceId = relation.getPath()[i];
+//            String destinationId = relation.getPath()[i + 1];
+//
+//            Document source =
+//                results.stream()
+//                    .filter(doc -> doc.getObjectId("_id").toString().equalsIgnoreCase(sourceId))
+//                    .findAny()
+//                    .orElse(entities.stream().filter(
+//                        entity -> entity.getObjectId("_id").toString().equalsIgnoreCase(sourceId))
+//                        .findFirst().get());
+//            String destinationType = relation.getEntityTypes()[i + 2];
+//            if (!source.containsKey(destinationType)
+//                || !Arrays.asList(source.get(destinationType, Document[].class)).stream()
+//                    .filter(doc -> doc.get("_id").toString().equalsIgnoreCase(destinationId))
+//                    .findAny().isPresent()) {
+//              Document detDoc = entities.stream()
+//                  .filter(doc -> doc.getObjectId("_id").toString().equalsIgnoreCase(destinationId))
+//                  .findFirst().get();
+//              if (!source.containsKey(destinationType)) {
+//                source.append(destinationType, new Document[] {detDoc});
+//              } else {
+//                Document[] docArray = source.get(destinationType, Document[].class);
+//                source.replace(destinationType, ArrayUtils.add(docArray, detDoc));
+//              }
+//            }
+//          }
+//        }
+//      }
+//    });
+//    return results;
   }
 }

@@ -28,7 +28,7 @@ class DatabaseComponent extends React.Component {
             <div class="col s12 m12 l12">
                 <div class="card-panel teal lighten-2">Create a database</div>
                 <p class="caption">
-                    Data API supports two types of databases: Relational database and JSON store. Although we recommand using JSON store due mainly to higher performance, this decision is related to use case.
+                    Data API supports two types of databases: Relational database and NoSQL. Although we recommand using NoSQL databases due mainly to higher performance, this decision is related to use case.
                 In order to create a database, you need to set its type and name.
                 </p>
                 <CreateDatabaseForm onSubmit={handleCreateDatabaseSubmit} />
@@ -78,8 +78,8 @@ class CreateDatabaseForm extends React.Component {
                         withContainer={false}
                         options={[
                             { value: 'postgresql', text: 'PostgreSQL' },
-                            { value: 'mysql', text: 'PostgreSQL' },
-                            { value: 'oracle', text: 'PostgreSQL' },
+                            { value: 'mysql', text: 'MySql' },
+                            { value: 'oracle', text: 'Oracle' },
                             { value: 'mongodb', text: 'MongoDB' },
                             { value: 'hive', text: 'Hive' },
                             { value: 'hbase', text: 'HBase' }

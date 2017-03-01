@@ -67,10 +67,6 @@ public class GlobalRepositoryImp<T extends au.edu.unsw.cse.data.api.domain.entit
 
   @Override
   public AggregationPipeline getAggregation(Query<T> query) {
-    // TODO Auto-generated method stub
-    return null;
+    return datastore.createAggregation(getGenericTypeClass()).match(query);
   }
-
-
-
 }

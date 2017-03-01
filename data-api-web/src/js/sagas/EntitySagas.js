@@ -9,17 +9,17 @@ export function* handlePostEntityRequest() {
     // run the daemon
     while (true) {
         try {
-            // wait for a create database request
+            // wait for a create entity request
             const {payload} = yield take(ActionTypes.CREATE_ENTITY);
-            const entity = {};
-            payload.attributes.forEach((item) => {
-                entity[item.name] = item.value;
-            });
+            // const entity = {};
+            // payload.attributes.forEach((item) => {
+            //     entity[item.name] = item.value;
+            // });
             // call the api
-            const data = yield call(Api.Post, `/api/entities/${payload.databaseName}/${payload.datasetName}/${payload.entityType}`, entity, payload.accessToken);
+           // const data = yield call(Api.Post, `/api/entities/${payload.databaseName}/${payload.datasetName}/${payload.entityType}`, entity, payload.accessToken);
             // call the success
-            console.log(data);
-            //yield put(EntityActions.createDatabaseFulfilled(normalize(data.body, schema.database)));
+           // console.log(data);
+            yield put(EntityActions.createEntityFulfilled(""));
         } catch (e) {
             // call the error
             //yield put(EntityActions.createDatabaseRejected(e));

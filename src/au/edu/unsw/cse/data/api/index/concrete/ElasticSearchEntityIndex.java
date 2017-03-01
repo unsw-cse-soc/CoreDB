@@ -46,40 +46,46 @@ public class ElasticSearchEntityIndex implements EntityIndex {
   }
 
   @Override
-  public void indexRelations(List<EntityRelation> relations, String indexName) {
+  public void indexRelations(List<EntityRelation> relations) {
     relations.stream().parallel().forEach(relation -> {
       if (relation.getPath().length == 1) {
         try {
+          String parentIndexName = relation.getSourceDatabase().getId();
           String parentId = relation.getSource();
           String parentType = relation.getEntityTypes()[0];
           String childType = relation.getEntityTypes()[1];
+          String childIndex = relation.getDestinationsDatabases()[0].getId();
           String relationName = relation.getRelationNames()[0];
-          Map<String, Object> obj = get(indexName, childType, relation.getPath()[0]);
-          update(indexName, parentType, parentId, relationName, obj);
+          Map<String, Object> obj = get(childIndex, childType, relation.getPath()[0]);
+          update(parentIndexName, parentType, parentId, relationName, obj);
         } catch (ExecutionException | InterruptedException | IOException e) {
           e.printStackTrace();
         }
       } else {
         for (int i = relation.getPath().length - 1; i > 0; i--) {
           try {
+            String childIndexName = relation.getDestinationsDatabases()[i].getId();
             String type = relation.getEntityTypes()[i + 1];
             String parentId = relation.getPath()[i - 1];
+            String parentIndexName = relation.getDestinationsDatabases()[i - 1].getId();
             String relationName = relation.getPath()[i];
             String parentType = relation.getEntityTypes()[i];
-            Map<String, Object> obj = get(indexName, type, relation.getPath()[i]);
-            update(indexName, parentType, parentId, relationName, obj);
+            Map<String, Object> obj = get(childIndexName, type, relation.getPath()[i]);
+            update(parentIndexName, parentType, parentId, relationName, obj);
           } catch (ExecutionException | InterruptedException | IOException e) {
             e.printStackTrace();
           }
         }
         try {
+          String sourceIndexName = relation.getSourceDatabase().getId();
           String sourceId = relation.getSource();
           String sourceType = relation.getPath()[0];
           String childId = relation.getPath()[0];
+          String childIndexName = relation.getDestinationsDatabases()[0].getId();
           String childType = relation.getPath()[1];
           String relationName = relation.getRelationNames()[0];
-          Map<String, Object> obj = get(indexName, childType, childId);
-          update(indexName, sourceType, sourceId, relationName, obj);
+          Map<String, Object> obj = get(childIndexName, childType, childId);
+          update(sourceIndexName, sourceType, sourceId, relationName, obj);
         } catch (ExecutionException | InterruptedException | IOException e) {
           e.printStackTrace();
         }

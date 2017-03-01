@@ -17,5 +17,5 @@ public interface EntityIndex {
 
   Map<String, Object> get(String index, String type, String id);
 
-  void indexRelations(List<EntityRelation> relations, String indexName);
+  void indexRelations(List<EntityRelation> relations);
 }

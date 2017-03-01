@@ -24,7 +24,7 @@ class EntityComponent extends React.Component {
     }
 
     render() {
-        const { handleCreateEntitySubmit, handleUpdateEntitySubmit, handleDeleteEntitySubmit, responses } = this.props;
+        const { handleCreateEntitySubmit, handleUpdateEntitySubmit, handleDeleteEntitySubmit, responses, done } = this.props;
         return <div class="row">
             <div class="col s12 m12 l12">
                 <div class="card-panel teal lighten-2">Create an entity</div>
@@ -32,6 +32,7 @@ class EntityComponent extends React.Component {
                     Coredb supports schema-less entities and it is not necessary to define schema for entities. It employs a solution in order to detect type of each attribute of an entity from the JSON object containing the entity. This allows you to manage inheritance straightforward without defining multiple tables and collection for each type
                 </p>
                 <CreateEntityForm onSubmit={handleCreateEntitySubmit} />
+                {done && <p>Done!</p>}
             </div>
         </div>
     }
@@ -110,6 +111,15 @@ class CreateEntityForm extends React.Component {
                         <FieldArray name="attributes" component={renderAttributes} />
                     </div>
                 </div>
+                <div class="file-field input-field">
+                    <div class="btn">
+                        <span>File</span>
+                        <input type="file" />
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text" />
+                    </div>
+                </div>
                 <RenderSubmitButton label="Submit" id="client-submit" name="client-submit" />
             </form>
         </div>
@@ -143,7 +153,7 @@ class DeleteDatabaseForm extends React.Component {
     }
 
     render() {
-        const { handleSubmit, submitting } = this.props;
+        const {handleSubmit, submitting } = this.props;
         return <div class="row">
             <div class="col s12 m12 l12">
                 <div class="card blue-grey darken-1">

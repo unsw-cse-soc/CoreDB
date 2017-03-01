@@ -2,6 +2,7 @@ import { fork } from 'redux-saga/effects';
 import * as AuthSagas from './AuthSagas';
 import * as DatabaseSagas from './DatabaseSagas';
 import * as EntitySagas from './EntitySagas';
+import * as RelationSagas from './RelationSagas';
 
 export default function* rootSaga() {
     yield [
@@ -10,6 +11,7 @@ export default function* rootSaga() {
         fork(AuthSagas.handleLoginRequest),
         fork(DatabaseSagas.handlePostDatabaseRequest),
         fork(DatabaseSagas.handleDeleteDatabaseRequest),
-        fork(EntitySagas.handlePostEntityRequest)
+        fork(EntitySagas.handlePostEntityRequest),
+        fork(RelationSagas.handlePostRelationRequest)
     ];
 }

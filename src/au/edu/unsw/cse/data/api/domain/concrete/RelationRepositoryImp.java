@@ -7,27 +7,24 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
-
-import com.mongodb.MongoClient;
 
 import au.edu.unsw.cse.data.api.domain.abstracts.RelationRepository;
 import au.edu.unsw.cse.data.api.domain.entity.EntityRelation;
 
-public class RelationRepositoryImp extends RepositoryImp<EntityRelation>
+public class RelationRepositoryImp extends GlobalRepositoryImp<EntityRelation>
     implements RelationRepository {
 
   @Inject
-  public RelationRepositoryImp(Morphia morphia, MongoClient mongoClient) {
-    super(morphia, mongoClient);
+  public RelationRepositoryImp(Datastore datastore) {
+    super(datastore);
   }
 
   @Override
-  public void create(String databaseName, EntityRelation entity) {
-    Datastore dataStore = getDataStore("databaseName");
-    List<EntityRelation> paths = dataStore.find(EntityRelation.class).field("path")
+  public void create(EntityRelation entity) {
+    List<EntityRelation> paths = datastore.find(EntityRelation.class).field("path")
         .endsWithIgnoreCase(entity.getSource()).asList();
     List<EntityRelation> updatedPaths = new LinkedList<>();
     paths.forEach(path -> {
@@ -44,19 +41,31 @@ public class RelationRepositoryImp extends RepositoryImp<EntityRelation>
       newPath.setRelationTypes(
           ArrayUtils.add(Arrays.copyOf(path.getRelationTypes(), path.getRelationTypes().length),
               path.getRelationTypes()[0]));
+      newPath.setDestinationsDatabases(ArrayUtils.add(
+          Arrays.copyOf(path.getDestinationsDatabases(), path.getDestinationsDatabases().length),
+          entity.getDestinationsDatabases()[0]));
       updatedPaths.add(newPath);
     });
     updatedPaths.add(entity);
-    dataStore.save(updatedPaths);
+    datastore.save(updatedPaths);
   }
 
   @Override
-  public List<EntityRelation> get(String databaseName, String source, List<String> types) {
+  public List<EntityRelation> get(String source, List<String> types) {
     String[] typesArray = new String[types.size()];
     typesArray = types.toArray(typesArray);
+    final Query<EntityRelation> query = datastore.createQuery(EntityRelation.class).field("source")
+        .equalIgnoreCase(source).filter("types in", typesArray);
+    List<EntityRelation> relations = query.asList();
+    return relations;
+  }
+
+  @Override
+  public List<EntityRelation> getByIds(List<ObjectId> ids) {
+    ObjectId[] idsArray = new ObjectId[ids.size()];
+    idsArray = ids.toArray(idsArray);
     final Query<EntityRelation> query =
-        getDataStore("databaseName").createQuery(EntityRelation.class).field("source")
-            .equalIgnoreCase(source).filter("types in", typesArray);
+        datastore.createQuery(EntityRelation.class).field("_id").hasAnyOf(ids);
     List<EntityRelation> relations = query.asList();
     return relations;
   }

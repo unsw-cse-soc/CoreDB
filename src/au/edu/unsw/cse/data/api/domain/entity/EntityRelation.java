@@ -2,9 +2,12 @@ package au.edu.unsw.cse.data.api.domain.entity;
 
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Reference;
 
 @Entity("relations")
 public class EntityRelation extends au.edu.unsw.cse.data.api.domain.entity.Entity {
+  @Reference
+  private Database sourceDatabase;
   private String source;
   @Embedded
   private String[] path;
@@ -14,6 +17,8 @@ public class EntityRelation extends au.edu.unsw.cse.data.api.domain.entity.Entit
   private String[] relationNames;
   @Embedded
   private String[] relationTypes;
+  @Reference
+  private Database[] destinationsDatabases;
 
   public String getSource() {
     return source;
@@ -53,6 +58,22 @@ public class EntityRelation extends au.edu.unsw.cse.data.api.domain.entity.Entit
 
   public void setRelationTypes(String[] relationTypes) {
     this.relationTypes = relationTypes;
+  }
+
+  public Database getSourceDatabase() {
+    return sourceDatabase;
+  }
+
+  public void setSourceDatabase(Database sourceDatabase) {
+    this.sourceDatabase = sourceDatabase;
+  }
+
+  public Database[] getDestinationsDatabases() {
+    return destinationsDatabases;
+  }
+
+  public void setDestinationsDatabases(Database[] destinationsDatabases) {
+    this.destinationsDatabases = destinationsDatabases;
   }
 
 }
