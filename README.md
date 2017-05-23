@@ -14,7 +14,7 @@ Try CoreDB Service:
 http://129.94.175.90:8082/
 
 Learn More: 
-https://youtu.be/fLLHVT46QYk
+https://youtu.be/o1g6bGfx9i8
 
 Notice:
 We encourage researchers/developers to cite our paper if you have used our APIs, libraries, tools or datasets.
