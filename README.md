@@ -19,6 +19,7 @@ https://youtu.be/o1g6bGfx9i8
 Notice:
 We encourage researchers/developers to cite our paper if you have used our APIs, libraries, tools or datasets.
 
+* Amin Beheshti, Boualem Benatallah, Reza Nouri, Van Munin Chhieng, HuangTao Xiong, Xu Zhao: CoreDB: a Data Lake Service. CIKM 2017.
 
 ----License-----------------------
 
